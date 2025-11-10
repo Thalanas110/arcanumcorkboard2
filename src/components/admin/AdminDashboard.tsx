@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LogOut, LayoutDashboard, MessageSquare } from "lucide-react";
 import { PostsTable } from "./PostsTable";
 import { AnalyticsDashboard } from "./AnalyticsDashboard";
+import { LoadingScreen } from "@/components/LoadingScreen";
 
 interface AdminDashboardProps {
   onLogout: () => void;
@@ -13,6 +14,7 @@ interface AdminDashboardProps {
 export const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
   const [posts, setPosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [initialLoadComplete, setInitialLoadComplete] = useState(false);
 
   useEffect(() => {
     fetchPosts();
@@ -50,9 +52,20 @@ export const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
     } catch (error) {
       console.error('Error fetching posts:', error);
     } finally {
+      // Only set loading to false, let LoadingScreen handle timing
       setLoading(false);
     }
   };
+
+  // Show loading screen if still loading
+  if (!initialLoadComplete) {
+    return (
+      <LoadingScreen 
+        isLoading={loading}
+        onComplete={() => setInitialLoadComplete(true)} 
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
