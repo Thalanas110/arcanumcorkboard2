@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { PostCard } from "@/components/PostCard";
 import { PostForm } from "@/components/PostForm";
 import { PostModal } from "@/components/PostModal";
+import { LoadingScreen } from "@/components/LoadingScreen";
 import { Pin, Plus, Menu, X } from "lucide-react";
 import backgroundImage from "@/assets/anniversary-bg.jpg";
 
@@ -22,6 +23,7 @@ const Corkboard = () => {
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [initialLoadComplete, setInitialLoadComplete] = useState(false);
   const [sidenavOpen, setSidenavOpen] = useState(false);
 
   // Fetch posts
@@ -62,9 +64,20 @@ const Corkboard = () => {
     } catch (error) {
       console.error('Error fetching posts:', error);
     } finally {
+      // Only set loading to false, let LoadingScreen handle timing
       setLoading(false);
     }
   };
+
+  // Show loading screen if still loading
+  if (!initialLoadComplete) {
+    return (
+      <LoadingScreen 
+        isLoading={loading}
+        onComplete={() => setInitialLoadComplete(true)} 
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen relative">
