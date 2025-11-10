@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Upload } from "lucide-react";
+import { Upload, X } from "lucide-react";
 
 interface PostFormProps {
   open: boolean;
@@ -32,6 +32,15 @@ export const PostForm = ({ open, onClose, onSuccess }: PostFormProps) => {
         return;
       }
       setImageFile(file);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setImageFile(null);
+    // Reset the file input
+    const fileInput = document.getElementById('image') as HTMLInputElement;
+    if (fileInput) {
+      fileInput.value = '';
     }
   };
 
@@ -189,13 +198,25 @@ export const PostForm = ({ open, onClose, onSuccess }: PostFormProps) => {
                 type="button"
                 variant="outline"
                 onClick={() => document.getElementById('image')?.click()}
-                className="w-full min-w-0 flex items-center justify-start gap-2"
+                className="flex-1 min-w-0 flex items-center justify-start gap-2"
               >
                 <Upload className="w-4 h-4 flex-shrink-0" />
                 <span className="truncate min-w-0 text-left">
                   {imageFile ? imageFile.name : 'Choose Image'}
                 </span>
               </Button>
+              {imageFile && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  onClick={handleRemoveImage}
+                  className="flex-shrink-0"
+                  title="Remove image"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              )}
             </div>
           </div>
 
