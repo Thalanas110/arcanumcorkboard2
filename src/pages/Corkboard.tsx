@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { PostCard } from "@/components/PostCard";
 import { PostForm } from "@/components/PostForm";
 import { PostModal } from "@/components/PostModal";
-import { Pin, Plus } from "lucide-react";
+import { Pin, Plus, Menu, X } from "lucide-react";
 import backgroundImage from "@/assets/anniversary-bg.jpg";
 
 interface Post {
@@ -22,6 +22,7 @@ const Corkboard = () => {
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [sidenavOpen, setSidenavOpen] = useState(false);
 
   // Fetch posts
   useEffect(() => {
@@ -97,7 +98,9 @@ const Corkboard = () => {
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-3">
+              
+              {/* Desktop Navigation (lg+ screens) */}
+              <div className="hidden lg:flex items-center gap-3">
                 <Button 
                   onClick={() => setShowForm(true)}
                   size="lg"
@@ -115,6 +118,16 @@ const Corkboard = () => {
                   Admin
                 </Button>
               </div>
+
+              {/* Mobile Menu Button (mobile/tablet screens) */}
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => setSidenavOpen(true)}
+                className="lg:hidden"
+              >
+                <Menu className="w-5 h-5" />
+              </Button>
             </div>
           </div>
         </header>
@@ -148,6 +161,60 @@ const Corkboard = () => {
         </main>
       </div>
 
+      {/* Mobile Side Navigation */}
+      {sidenavOpen && (
+        <>
+          {/* Overlay */}
+          <div 
+            className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+            onClick={() => setSidenavOpen(false)}
+          />
+          
+          {/* Sidenav */}
+          <div className="fixed top-0 right-0 h-full w-80 bg-card border-l border-border z-50 lg:hidden transform transition-transform duration-300 ease-in-out">
+            <div className="p-6">
+              {/* Close button */}
+              <div className="flex justify-between items-center mb-8">
+                <h2 className="text-xl font-semibold">Menu</h2>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setSidenavOpen(false)}
+                >
+                  <X className="w-5 h-5" />
+                </Button>
+              </div>
+
+              {/* Navigation items */}
+              <div className="space-y-4">
+                <Button 
+                  onClick={() => {
+                    setShowForm(true);
+                    setSidenavOpen(false);
+                  }}
+                  size="lg"
+                  className="w-full gap-2 shadow-lg hover:shadow-xl transition-shadow"
+                >
+                  <Plus className="w-5 h-5" />
+                  Post a Message
+                </Button>
+                <Button 
+                  variant="secondary" 
+                  size="lg"
+                  onClick={() => {
+                    window.location.href = '/admin';
+                    setSidenavOpen(false);
+                  }}
+                  className="w-full shadow-lg hover:shadow-xl transition-shadow"
+                >
+                  Admin
+                </Button>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+      
       {/* Modals */}
       {showForm && (
         <PostForm 
