@@ -177,7 +177,7 @@ export const PostForm = ({ open, onClose, onSuccess }: PostFormProps) => {
 
           <div className="space-y-2">
             <Label htmlFor="image">Image (optional, max 100KB)</Label>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 w-full min-w-0">
               <Input
                 id="image"
                 type="file"
@@ -189,10 +189,12 @@ export const PostForm = ({ open, onClose, onSuccess }: PostFormProps) => {
                 type="button"
                 variant="outline"
                 onClick={() => document.getElementById('image')?.click()}
-                className="w-full"
+                className="w-full min-w-0 flex items-center justify-start gap-2"
               >
-                <Upload className="w-4 h-4 mr-2" />
-                {imageFile ? imageFile.name : 'Choose Image'}
+                <Upload className="w-4 h-4 flex-shrink-0" />
+                <span className="truncate min-w-0 text-left">
+                  {imageFile ? imageFile.name : 'Choose Image'}
+                </span>
               </Button>
             </div>
           </div>
