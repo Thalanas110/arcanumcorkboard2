@@ -130,7 +130,7 @@ export const PostForm = ({ open, onClose, onSuccess }: PostFormProps) => {
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-lg max-w-[95vw] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Post a Message</DialogTitle>
           <DialogDescription>
@@ -186,7 +186,7 @@ export const PostForm = ({ open, onClose, onSuccess }: PostFormProps) => {
 
           <div className="space-y-2">
             <Label htmlFor="image">Image (optional, max 100KB)</Label>
-            <div className="space-y-2">
+            <div className="space-y-2 w-full min-w-0">
               <Input
                 id="image"
                 type="file"
@@ -198,10 +198,10 @@ export const PostForm = ({ open, onClose, onSuccess }: PostFormProps) => {
                 type="button"
                 variant="outline"
                 onClick={() => document.getElementById('image')?.click()}
-                className="w-full flex items-center justify-start gap-2"
+                className="w-full flex items-center justify-start gap-2 min-w-0 overflow-hidden"
               >
                 <Upload className="w-4 h-4 flex-shrink-0" />
-                <span className="truncate min-w-0 text-left">
+                <span className="truncate min-w-0 text-left block overflow-hidden text-ellipsis whitespace-nowrap max-w-0 flex-1">
                   {imageFile ? imageFile.name : 'Choose Image'}
                 </span>
               </Button>

@@ -91,10 +91,10 @@ const Corkboard = () => {
                 <Pin className="w-8 h-8 text-primary rotate-45" />
                 <div>
                   <h1 className="text-3xl font-bold text-primary">
-                    Arcanum Academy Corkboard
+                    Anonymous Corkboard
                   </h1>
                   <p className="text-sm text-muted-foreground">
-                    4th Monthsary Celebration • November
+                    4th Monthsary • Arcanum Academy
                   </p>
                 </div>
               </div>
