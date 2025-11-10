@@ -1,0 +1,94 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* Autumn-themed corkboard colors */
+    --background: 28 35% 92%;
+    --foreground: 20 30% 15%;
+
+    --card: 40 55% 96%;
+    --card-foreground: 20 30% 15%;
+
+    --popover: 40 55% 96%;
+    --popover-foreground: 20 30% 15%;
+
+    --primary: 25 85% 55%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 45 75% 60%;
+    --secondary-foreground: 20 30% 15%;
+
+    --muted: 35 25% 85%;
+    --muted-foreground: 20 15% 45%;
+
+    --accent: 10 80% 55%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 35 30% 80%;
+    --input: 35 30% 85%;
+    --ring: 25 85% 55%;
+
+    --radius: 0.75rem;
+
+    /* Custom autumn colors */
+    --autumn-brown: 20 45% 25%;
+    --autumn-orange: 25 85% 55%;
+    --autumn-gold: 45 75% 60%;
+    --autumn-crimson: 10 80% 55%;
+    --autumn-leaf: 50 70% 50%;
+    
+    /* Paper note colors */
+    --note-yellow: 48 100% 88%;
+    --note-pink: 350 100% 90%;
+    --note-blue: 200 100% 90%;
+    --note-green: 120 40% 85%;
+    
+    /* Shadows and effects */
+    --shadow-soft: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-medium: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --shadow-strong: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Fredoka', 'Inter', sans-serif;
+  }
+}
+
+@layer utilities {
+  .note-shadow {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 
+                0 2px 4px -1px rgba(0, 0, 0, 0.06),
+                inset 0 -2px 4px rgba(0, 0, 0, 0.05);
+  }
+  
+  .cork-texture {
+    background-image: 
+      repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(0,0,0,.03) 2px, rgba(0,0,0,.03) 4px),
+      repeating-linear-gradient(-45deg, transparent, transparent 2px, rgba(0,0,0,.03) 2px, rgba(0,0,0,.03) 4px);
+  }
+  
+  .paper-texture {
+    background-image: 
+      repeating-linear-gradient(0deg, transparent, transparent 20px, rgba(0,0,0,.02) 20px, rgba(0,0,0,.02) 21px);
+  }
+}
