@@ -19,7 +19,7 @@ export const LoadingScreen = ({ onComplete, isLoading = true }: LoadingScreenPro
         setProgress(prev => {
           // Use a sine wave for smooth, realistic loading animation
           const newProgress = 50 + Math.sin(Date.now() * 0.002) * 30;
-          return Math.max(20, Math.min(80, newProgress)); // Keep between 20-80%
+          return Math.max(0, Math.min(100, newProgress)); 
         });
       }, 50);
     } else {
