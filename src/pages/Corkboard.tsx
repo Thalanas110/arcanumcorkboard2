@@ -97,14 +97,24 @@ const Corkboard = () => {
                   </p>
                 </div>
               </div>
-              <Button 
-                onClick={() => setShowForm(true)}
-                size="lg"
-                className="gap-2 shadow-lg hover:shadow-xl transition-shadow"
-              >
-                <Plus className="w-5 h-5" />
-                Post a Message
-              </Button>
+              <div className="flex items-center gap-3">
+                <Button 
+                  onClick={() => setShowForm(true)}
+                  size="lg"
+                  className="gap-2 shadow-lg hover:shadow-xl transition-shadow"
+                >
+                  <Plus className="w-5 h-5" />
+                  Post a Message
+                </Button>
+                <Button 
+                  variant="secondary" 
+                  size="lg"
+                  onClick={() => window.location.href = '/admin'}
+                  className="shadow-lg hover:shadow-xl transition-shadow"
+                >
+                  Admin
+                </Button>
+              </div>
             </div>
           </div>
         </header>
@@ -136,18 +146,6 @@ const Corkboard = () => {
             </div>
           )}
         </main>
-
-        {/* Admin Link */}
-        <div className="fixed bottom-4 right-4 z-20">
-          <Button 
-            variant="secondary" 
-            size="sm"
-            onClick={() => window.location.href = '/admin'}
-            className="shadow-lg"
-          >
-            Admin
-          </Button>
-        </div>
       </div>
 
       {/* Modals */}

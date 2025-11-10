@@ -186,7 +186,7 @@ export const PostForm = ({ open, onClose, onSuccess }: PostFormProps) => {
 
           <div className="space-y-2">
             <Label htmlFor="image">Image (optional, max 100KB)</Label>
-            <div className="flex items-center gap-2 w-full min-w-0">
+            <div className="space-y-2">
               <Input
                 id="image"
                 type="file"
@@ -198,7 +198,7 @@ export const PostForm = ({ open, onClose, onSuccess }: PostFormProps) => {
                 type="button"
                 variant="outline"
                 onClick={() => document.getElementById('image')?.click()}
-                className="flex-1 min-w-0 flex items-center justify-start gap-2"
+                className="w-full flex items-center justify-start gap-2"
               >
                 <Upload className="w-4 h-4 flex-shrink-0" />
                 <span className="truncate min-w-0 text-left">
@@ -209,12 +209,13 @@ export const PostForm = ({ open, onClose, onSuccess }: PostFormProps) => {
                 <Button
                   type="button"
                   variant="outline"
-                  size="icon"
+                  size="sm"
                   onClick={handleRemoveImage}
-                  className="flex-shrink-0"
+                  className="w-full"
                   title="Remove image"
                 >
-                  <X className="w-4 h-4" />
+                  <X className="w-4 h-4 mr-2" />
+                  Remove Image
                 </Button>
               )}
             </div>
