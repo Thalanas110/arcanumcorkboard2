@@ -22,6 +22,7 @@ export const AdminLogin = () => {
       
       if (isSignup) {
         // Sign up
+        /*
         const { data, error } = await supabase.auth.signUp({
           email: email.trim(),
           password: password,
@@ -35,7 +36,8 @@ export const AdminLogin = () => {
         if (data.user) {
           toast.success('Account created! You can now log in.');
           setIsSignup(false);
-        }
+        }*/
+       console.log('Signup is currently disabled.');
       } else {
         // Sign in
         const { error } = await supabase.auth.signInWithPassword({
@@ -114,15 +116,15 @@ export const AdminLogin = () => {
               </Button>
               
               {/*
-                <Button
-                  type="button"
-                  variant="ghost"
-                  className="w-full"
-                  onClick={() => setIsSignup(!isSignup)}
-                  disabled={loading}
-                >
-                  {isSignup ? 'Already have an account? Login' : 'Need an account? Sign Up'}
-                </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                className="w-full"
+                onClick={() => setIsSignup(!isSignup)}
+                disabled={loading}
+              >
+                {isSignup ? 'Already have an account? Login' : 'Need an account? Sign Up'}
+              </Button>
               */}
 
               <Button
