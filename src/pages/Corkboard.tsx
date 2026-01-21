@@ -6,7 +6,7 @@ import { PostForm } from "@/components/PostForm";
 import { PostModal } from "@/components/PostModal";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { Pin, Plus, Menu, X } from "lucide-react";
-import backgroundImage from "@/assets/anniversary-bg.jpg";
+import backgroundImage from "@/assets/granite-texture.jpg";
 
 interface Post {
   id: string;
@@ -72,9 +72,9 @@ const Corkboard = () => {
   // Show loading screen if still loading
   if (!initialLoadComplete) {
     return (
-      <LoadingScreen 
+      <LoadingScreen
         isLoading={loading}
-        onComplete={() => setInitialLoadComplete(true)} 
+        onComplete={() => setInitialLoadComplete(true)}
       />
     );
   }
@@ -82,7 +82,7 @@ const Corkboard = () => {
   return (
     <div className="min-h-screen relative">
       {/* Background with overlay */}
-      <div 
+      <div
         className="fixed inset-0 z-0"
         style={{
           backgroundImage: `url(${backgroundImage})`,
@@ -111,10 +111,10 @@ const Corkboard = () => {
                   </p>
                 </div>
               </div>
-              
+
               {/* Desktop Navigation (lg+ screens) */}
               <div className="hidden lg:flex items-center gap-3">
-                <Button 
+                <Button
                   onClick={() => setShowForm(true)}
                   size="lg"
                   className="gap-2 shadow-lg hover:shadow-xl transition-shadow"
@@ -122,8 +122,8 @@ const Corkboard = () => {
                   <Plus className="w-5 h-5" />
                   Post a Message
                 </Button>
-                <Button 
-                  variant="secondary" 
+                <Button
+                  variant="secondary"
                   size="lg"
                   onClick={() => window.location.href = '/admin'}
                   className="shadow-lg hover:shadow-xl transition-shadow"
@@ -178,11 +178,11 @@ const Corkboard = () => {
       {sidenavOpen && (
         <>
           {/* Overlay */}
-          <div 
+          <div
             className="fixed inset-0 bg-black/50 z-40 lg:hidden"
             onClick={() => setSidenavOpen(false)}
           />
-          
+
           {/* Sidenav */}
           <div className="fixed top-0 right-0 h-full w-80 bg-card border-l border-border z-50 lg:hidden transform transition-transform duration-300 ease-in-out">
             <div className="p-6">
@@ -200,7 +200,7 @@ const Corkboard = () => {
 
               {/* Navigation items */}
               <div className="space-y-4">
-                <Button 
+                <Button
                   onClick={() => {
                     setShowForm(true);
                     setSidenavOpen(false);
@@ -211,8 +211,8 @@ const Corkboard = () => {
                   <Plus className="w-5 h-5" />
                   Post a Message
                 </Button>
-                <Button 
-                  variant="secondary" 
+                <Button
+                  variant="secondary"
                   size="lg"
                   onClick={() => {
                     window.location.href = '/admin';
@@ -227,11 +227,11 @@ const Corkboard = () => {
           </div>
         </>
       )}
-      
+
       {/* Modals */}
       {showForm && (
-        <PostForm 
-          open={showForm} 
+        <PostForm
+          open={showForm}
           onClose={() => setShowForm(false)}
           onSuccess={() => {
             setShowForm(false);
