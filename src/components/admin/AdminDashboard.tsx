@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LogOut, LayoutDashboard, MessageSquare } from "lucide-react";
 import { PostsTable } from "./PostsTable";
 import { AnalyticsDashboard } from "./AnalyticsDashboard";
+import { LogsDashboard } from "./LogsDashboard";
 import { LoadingScreen } from "@/components/LoadingScreen";
 
 interface AdminDashboardProps {
@@ -60,9 +61,9 @@ export const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
   // Show loading screen if still loading
   if (!initialLoadComplete) {
     return (
-      <LoadingScreen 
+      <LoadingScreen
         isLoading={loading}
-        onComplete={() => setInitialLoadComplete(true)} 
+        onComplete={() => setInitialLoadComplete(true)}
       />
     );
   }
@@ -93,7 +94,7 @@ export const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
       {/* Content */}
       <main className="container mx-auto px-4 py-8">
         <Tabs defaultValue="analytics" className="space-y-6">
-          <TabsList className="grid w-full max-w-md grid-cols-2">
+          <TabsList className="grid w-full max-w-md grid-cols-3">
             <TabsTrigger value="analytics">
               <LayoutDashboard className="w-4 h-4 mr-2" />
               Analytics
@@ -101,6 +102,10 @@ export const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
             <TabsTrigger value="posts">
               <MessageSquare className="w-4 h-4 mr-2" />
               Posts
+            </TabsTrigger>
+            <TabsTrigger value="logs">
+              <LogOut className="w-4 h-4 mr-2" />
+              Logs
             </TabsTrigger>
           </TabsList>
 
@@ -110,6 +115,10 @@ export const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
 
           <TabsContent value="posts" className="space-y-6">
             <PostsTable posts={posts} loading={loading} onUpdate={fetchPosts} />
+          </TabsContent>
+
+          <TabsContent value="logs" className="space-y-6">
+            <LogsDashboard />
           </TabsContent>
         </Tabs>
       </main>

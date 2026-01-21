@@ -46,7 +46,7 @@ export const PostForm = ({ open, onClose, onSuccess }: PostFormProps) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.name.trim() || !formData.batch || !formData.message.trim()) {
       toast.error('Please fill in all required fields');
       return;
@@ -80,7 +80,7 @@ export const PostForm = ({ open, onClose, onSuccess }: PostFormProps) => {
       if (imageFile) {
         const fileExt = imageFile.name.split('.').pop();
         const fileName = `posts/${Date.now()}.${fileExt}`;
-        
+
         const { error: uploadError, data } = await supabase.storage
           .from('post-images')
           .upload(fileName, imageFile);
@@ -134,7 +134,7 @@ export const PostForm = ({ open, onClose, onSuccess }: PostFormProps) => {
         <DialogHeader>
           <DialogTitle>Post a Message</DialogTitle>
           <DialogDescription>
-            Share your message for Arcanum Academy's 4th monthsary celebration!
+            Share your message for your secret people!
           </DialogDescription>
         </DialogHeader>
 
@@ -153,8 +153,8 @@ export const PostForm = ({ open, onClose, onSuccess }: PostFormProps) => {
 
           <div className="space-y-2">
             <Label htmlFor="batch">Batch *</Label>
-            <Select 
-              value={formData.batch} 
+            <Select
+              value={formData.batch}
               onValueChange={(value) => setFormData({ ...formData, batch: value })}
               required
             >

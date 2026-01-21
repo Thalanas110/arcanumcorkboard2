@@ -107,7 +107,7 @@ const Corkboard = () => {
                     Anonymous Corkboard
                   </h1>
                   <p className="text-sm text-muted-foreground">
-                    4th Monthsary • Arcanum Academy
+                    Confession Wall • Arcanum Academy
                   </p>
                 </div>
               </div>
