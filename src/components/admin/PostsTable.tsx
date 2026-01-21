@@ -8,6 +8,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { toast } from "sonner";
 import { Trash2, Pin, Eye } from "lucide-react";
 import { PostModal } from "@/components/PostModal";
+import { logger } from "@/lib/logger";
 
 interface PostsTableProps {
   posts: any[];
@@ -31,9 +32,11 @@ export const PostsTable = ({ posts, loading, onUpdate }: PostsTableProps) => {
       if (error) throw error;
 
       toast.success('Post deleted successfully');
+      logger.info('Admin deleted a post', { postId: deleteId });
       onUpdate();
     } catch (error) {
       console.error('Error deleting post:', error);
+      logger.error('Failed to delete post', { error, postId: deleteId });
       toast.error('Failed to delete post');
     } finally {
       setDeleteId(null);
