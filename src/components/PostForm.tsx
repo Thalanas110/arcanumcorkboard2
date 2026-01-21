@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Upload, X } from "lucide-react";
+import { logger } from "@/lib/logger";
 
 interface PostFormProps {
   open: boolean;
@@ -119,9 +120,15 @@ export const PostForm = ({ open, onClose, onSuccess }: PostFormProps) => {
       }
 
       toast.success('Message posted successfully!');
+      logger.info('New message posted', {
+        name: formData.name,
+        batch: formData.batch,
+        hasImage: !!imageUrl
+      });
       onSuccess();
     } catch (error) {
       console.error('Error posting message:', error);
+      logger.error('Failed to post message', { error });
       toast.error('Failed to post message. Please try again.');
     } finally {
       setLoading(false);

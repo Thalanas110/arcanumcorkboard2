@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Session } from "@supabase/supabase-js";
 import { AdminLogin } from "@/components/admin/AdminLogin";
 import { AdminDashboard } from "@/components/admin/AdminDashboard";
+import { logger } from "@/lib/logger";
 
 const Admin = () => {
   const [session, setSession] = useState<Session | null>(null);
@@ -50,9 +51,18 @@ const Admin = () => {
         .maybeSingle();
 
       if (error) throw error;
-      setIsAdmin(!!data);
+
+      const isUserAdmin = !!data;
+      setIsAdmin(isUserAdmin);
+
+      if (isUserAdmin) {
+        logger.info('Admin logged in', { userId });
+      } else {
+        logger.warn('Unauthorized admin access attempt', { userId });
+      }
     } catch (error) {
       console.error('Error checking admin role:', error);
+      logger.error('Error checking admin role', { error, userId });
       setIsAdmin(false);
     } finally {
       setLoading(false);
