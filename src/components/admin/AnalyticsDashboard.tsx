@@ -1,3 +1,5 @@
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart, Bar, PieChart, Pie, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from "recharts";
 import { MessageSquare, Users, TrendingUp, Calendar } from "lucide-react";
@@ -18,8 +20,21 @@ export const AnalyticsDashboard = ({ posts, loading }: AnalyticsDashboardProps) 
     );
   }
 
+  const [visits, setVisits] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchVisits = async () => {
+      const { data } = await supabase
+        .from('website_visits')
+        .select('*');
+      if (data) setVisits(data);
+    };
+    fetchVisits();
+  }, []);
+
   // Calculate statistics
   const totalPosts = posts.length;
+  const totalVisits = visits.length;
   const batch1Posts = posts.filter(p => p.batch === 1).length;
   const batch2Posts = posts.filter(p => p.batch === 2).length;
 
@@ -44,6 +59,19 @@ export const AnalyticsDashboard = ({ posts, loading }: AnalyticsDashboardProps) 
     <div className="space-y-6">
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Visits</CardTitle>
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{totalVisits}</div>
+            <p className="text-xs text-muted-foreground">
+              Total page views
+            </p>
+          </CardContent>
+        </Card>
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Posts</CardTitle>
@@ -148,10 +176,10 @@ export const AnalyticsDashboard = ({ posts, loading }: AnalyticsDashboardProps) 
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Line 
-                  type="monotone" 
-                  dataKey="posts" 
-                  stroke="hsl(var(--primary))" 
+                <Line
+                  type="monotone"
+                  dataKey="posts"
+                  stroke="hsl(var(--primary))"
                   strokeWidth={2}
                   dot={{ fill: "hsl(var(--primary))" }}
                 />
