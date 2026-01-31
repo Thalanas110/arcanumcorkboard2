@@ -11,8 +11,8 @@ This repository contains a Vite + React + TypeScript project scaffold with shadc
 1. Clone the repository:
 
 ```powershell
-git clone <YOUR_GIT_URL>
-cd <YOUR_PROJECT_NAME>
+git clone https://github.com/Thalanas110/arcanumcorkboard2.git
+cd arcanumcorkboard2
 ```
 
 2. Install dependencies and start the dev server:
