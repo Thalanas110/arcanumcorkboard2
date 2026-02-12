@@ -70,10 +70,18 @@ const Admin = () => {
   };
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
-    setSession(null);
-    setIsAdmin(false);
-    navigate('/');
+    try {
+      await supabase.auth.signOut();
+      // Explicitly remove the token from local storage to prevent persistence
+      localStorage.removeItem('sb-lhiutjkmivobkpopwafb-auth-token');
+      setSession(null);
+      setIsAdmin(false);
+      logger.info('User logged out manually');
+    } catch (error) {
+      console.error('Error signing out:', error);
+    } finally {
+      navigate('/');
+    }
   };
 
   if (loading) {
