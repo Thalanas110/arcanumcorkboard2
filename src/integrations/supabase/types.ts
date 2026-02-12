@@ -21,6 +21,7 @@ export type Database = {
           id: string
           image_url: string | null
           is_pinned: boolean | null
+          is_hidden: boolean
           message: string
           name: string
         }
@@ -30,6 +31,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_pinned?: boolean | null
+          is_hidden?: boolean
           message: string
           name: string
         }
@@ -39,6 +41,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_pinned?: boolean | null
+          is_hidden?: boolean
           message?: string
           name?: string
         }

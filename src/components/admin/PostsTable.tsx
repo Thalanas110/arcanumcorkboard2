@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
-import { Trash2, Pin, Eye } from "lucide-react";
+import { Trash2, Pin, Eye, EyeOff } from "lucide-react";
 import { PostModal } from "@/components/PostModal";
 import { logger } from "@/lib/logger";
 
@@ -56,6 +56,23 @@ export const PostsTable = ({ posts, loading, onUpdate }: PostsTableProps) => {
       onUpdate();
     } catch (error) {
       console.error('Error toggling pin:', error);
+      toast.error('Failed to update post');
+    }
+  };
+
+  const handleToggleHide = async (id: string, currentHidden: boolean) => {
+    try {
+      const { error } = await supabase
+        .from('posts')
+        .update({ is_hidden: !currentHidden })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      toast.success(currentHidden ? 'Post visible' : 'Post hidden');
+      onUpdate();
+    } catch (error) {
+      console.error('Error toggling hide:', error);
       toast.error('Failed to update post');
     }
   };
@@ -114,9 +131,15 @@ export const PostsTable = ({ posts, loading, onUpdate }: PostsTableProps) => {
                       </TableCell>
                       <TableCell>
                         {post.is_pinned && (
-                          <Badge variant="default" className="gap-1">
+                          <Badge variant="default" className="gap-1 mb-1 mr-1">
                             <Pin className="w-3 h-3" />
                             Pinned
+                          </Badge>
+                        )}
+                        {post.is_hidden && (
+                          <Badge variant="destructive" className="gap-1 mb-1 mr-1">
+                            <EyeOff className="w-3 h-3" />
+                            Hidden
                           </Badge>
                         )}
                       </TableCell>
@@ -135,6 +158,17 @@ export const PostsTable = ({ posts, loading, onUpdate }: PostsTableProps) => {
                             onClick={() => handleTogglePin(post.id, post.is_pinned)}
                           >
                             <Pin className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleToggleHide(post.id, post.is_hidden)}
+                          >
+                            {post.is_hidden ? (
+                              <Eye className="w-4 h-4 text-muted-foreground" />
+                            ) : (
+                              <EyeOff className="w-4 h-4 text-muted-foreground" />
+                            )}
                           </Button>
                           <Button
                             size="sm"
