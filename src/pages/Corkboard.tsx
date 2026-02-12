@@ -14,6 +14,7 @@ interface Post {
   batch: number;
   message: string;
   image_url: string | null;
+  facebook_link: string;
   is_pinned: boolean;
   created_at: string;
 }
@@ -61,7 +62,7 @@ const Corkboard = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setPosts(data || []);
+      setPosts(data as Post[] || []);
     } catch (error) {
       console.error('Error fetching posts:', error);
     } finally {

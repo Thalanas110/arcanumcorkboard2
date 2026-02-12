@@ -210,6 +210,7 @@ export const PostsTable = ({ posts, loading, onUpdate }: PostsTableProps) => {
           post={viewPost}
           open={!!viewPost}
           onClose={() => setViewPost(null)}
+          showAdminDetails={true}
         />
       )}
     </>

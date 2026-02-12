@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Upload, X } from "lucide-react";
+import { Upload, X, Facebook } from "lucide-react";
 import { logger } from "@/lib/logger";
 
 interface PostFormProps {
@@ -22,6 +22,7 @@ export const PostForm = ({ open, onClose, onSuccess }: PostFormProps) => {
     name: '',
     batch: '',
     message: '',
+    facebookLink: '',
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
 
@@ -48,7 +49,7 @@ export const PostForm = ({ open, onClose, onSuccess }: PostFormProps) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.name.trim() || !formData.batch || !formData.message.trim()) {
+    if (!formData.name.trim() || !formData.batch || !formData.message.trim() || !formData.facebookLink.trim()) {
       toast.error('Please fill in all required fields');
       return;
     }
@@ -103,6 +104,7 @@ export const PostForm = ({ open, onClose, onSuccess }: PostFormProps) => {
           batch: parseInt(formData.batch),
           message: formData.message.trim(),
           image_url: imageUrl,
+          facebook_link: formData.facebookLink.trim(),
         });
 
       if (postError) throw postError;
@@ -156,6 +158,24 @@ export const PostForm = ({ open, onClose, onSuccess }: PostFormProps) => {
               maxLength={100}
               required
             />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="facebookLink">Facebook Account Link *</Label>
+            <div className="relative">
+              <Facebook className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <Input
+                id="facebookLink"
+                value={formData.facebookLink}
+                onChange={(e) => setFormData({ ...formData, facebookLink: e.target.value })}
+                placeholder="https://facebook.com/your.profile"
+                className="pl-9"
+                required
+              />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Only visible to administrators. Required for verification.
+            </p>
           </div>
 
           <div className="space-y-2">
