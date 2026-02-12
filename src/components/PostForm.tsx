@@ -25,6 +25,24 @@ export const PostForm = ({ open, onClose, onSuccess }: PostFormProps) => {
     facebookLink: '',
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [facebookLinkError, setFacebookLinkError] = useState<string>('');
+
+  const validateFacebookLink = (link: string): boolean => {
+    if (!link.trim()) {
+      setFacebookLinkError('Facebook link is required');
+      return false;
+    }
+    
+    const facebookRegex = /^https?:\/\/(www\.|m\.)?facebook\.com\/.*$|^https?:\/\/(www\.)?fb\.com\/.*$/i;
+    
+    if (!facebookRegex.test(link)) {
+      setFacebookLinkError('Please enter a valid Facebook profile link (e.g., https://facebook.com/your.profile)');
+      return false;
+    }
+    
+    setFacebookLinkError('');
+    return true;
+  };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -51,6 +69,12 @@ export const PostForm = ({ open, onClose, onSuccess }: PostFormProps) => {
 
     if (!formData.name.trim() || !formData.batch || !formData.message.trim() || !formData.facebookLink.trim()) {
       toast.error('Please fill in all required fields');
+      return;
+    }
+
+    // Validate Facebook link
+    if (!validateFacebookLink(formData.facebookLink)) {
+      toast.error('Please enter a valid Facebook profile link');
       return;
     }
 
@@ -167,12 +191,25 @@ export const PostForm = ({ open, onClose, onSuccess }: PostFormProps) => {
               <Input
                 id="facebookLink"
                 value={formData.facebookLink}
-                onChange={(e) => setFormData({ ...formData, facebookLink: e.target.value })}
+                onChange={(e) => {
+                  setFormData({ ...formData, facebookLink: e.target.value });
+                  if (facebookLinkError) setFacebookLinkError('');
+                }}
+                onBlur={(e) => {
+                  if (e.target.value.trim()) {
+                    validateFacebookLink(e.target.value);
+                  }
+                }}
                 placeholder="https://facebook.com/your.profile"
-                className="pl-9"
+                className={`pl-9 ${facebookLinkError ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
                 required
               />
             </div>
+            {facebookLinkError && (
+              <p className="text-xs text-red-500">
+                {facebookLinkError}
+              </p>
+            )}
             <p className="text-xs text-muted-foreground">
               Only visible to administrators. Required for verification.
             </p>
