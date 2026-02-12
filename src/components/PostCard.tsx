@@ -8,6 +8,7 @@ interface Post {
   batch: number;
   message: string;
   image_url: string | null;
+  facebook_link: string;
   is_pinned: boolean;
   created_at: string;
 }
@@ -39,7 +40,7 @@ export const PostCard = ({ post, onClick }: PostCardProps) => {
     >
       {/* Pin */}
       <div className="absolute -top-2 left-1/2 -translate-x-1/2">
-        <Pin 
+        <Pin
           className={`w-6 h-6 ${post.is_pinned ? 'text-accent' : 'text-muted-foreground'} transform transition-transform group-hover:scale-110`}
           style={{ transform: 'rotate(45deg)' }}
         />
