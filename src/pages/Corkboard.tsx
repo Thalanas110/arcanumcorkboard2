@@ -56,6 +56,7 @@ const Corkboard = () => {
       const { data, error } = await supabase
         .from('posts')
         .select('*')
+        .eq('is_hidden', false)
         .order('is_pinned', { ascending: false })
         .order('created_at', { ascending: false });
 
