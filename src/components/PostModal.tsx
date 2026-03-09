@@ -21,30 +21,45 @@ interface PostModalProps {
   showAdminDetails?: boolean;
 }
 
+const noteColors = [
+  'bg-note-yellow',
+  'bg-note-pink',
+  'bg-note-blue',
+  'bg-note-green',
+];
+
 export const PostModal = ({ post, open, onClose, showAdminDetails }: PostModalProps) => {
+  const colorIndex = post ? parseInt(post.id.slice(-1), 16) % noteColors.length : 0;
+  const noteColor = noteColors[colorIndex];
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-2xl max-h-[80vh] overflow-y-auto">
-        <DialogHeader>
-          <div className="flex items-center justify-between">
-            <DialogTitle className="text-2xl flex items-center gap-2">
-              {post.is_pinned && (
-                <Pin className="w-5 h-5 text-accent" style={{ transform: 'rotate(45deg)' }} />
+      <DialogContent className={`sm:max-w-2xl max-h-[85vh] overflow-y-auto ${noteColor} paper-texture border-none shadow-strong sm:rounded-xl`}>
+        {/* Tape effect */}
+        <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-24 h-8 bg-white/30 shadow-sm backdrop-blur-[2px] -rotate-1 z-10 border border-white/40" />
+        
+        <DialogHeader className="pt-6 pb-2">
+          <div className="flex items-start justify-between gap-4">
+            <DialogTitle className="text-3xl flex items-center gap-3 font-handwritten text-foreground/90 font-bold leading-tight">
+              {post?.is_pinned && (
+                <Pin className="w-8 h-8 text-autumn-crimson fill-autumn-crimson/80 shrink-0 drop-shadow-sm" style={{ transform: 'rotate(45deg)' }} />
               )}
-              {post.name}
+              {post?.name}
             </DialogTitle>
-            <Badge variant="secondary">
-              Batch {post.batch}
-            </Badge>
+            <div className="shrink-0 transform rotate-2 mt-1">
+              <span className="inline-block px-3 py-1 text-xs uppercase tracking-wider font-bold border-2 border-foreground/20 text-foreground/60 rounded-sm bg-transparent">
+                Batch {post?.batch}
+              </span>
+            </div>
           </div>
-          <p className="text-sm text-muted-foreground">
-            Posted on {new Date(post.created_at).toLocaleDateString('en-US', {
+          <p className="text-sm font-medium text-foreground/50 mt-4 uppercase tracking-wider">
+            Posted on {post ? new Date(post.created_at).toLocaleDateString('en-US', {
               month: 'long',
               day: 'numeric',
               year: 'numeric',
               hour: '2-digit',
               minute: '2-digit',
-            })}
+            }) : ''}
           </p>
         </DialogHeader>
 
@@ -74,9 +89,9 @@ export const PostModal = ({ post, open, onClose, showAdminDetails }: PostModalPr
             </div>
           )}
 
-          <div className="prose prose-sm max-w-none">
-            <p className="text-base leading-relaxed whitespace-pre-wrap">
-              {post.message}
+          <div className="prose prose-sm max-w-none mt-2">
+            <p className="text-[1.15rem] leading-relaxed whitespace-pre-wrap font-handwritten text-foreground/85">
+              {post?.message}
             </p>
           </div>
         </div>

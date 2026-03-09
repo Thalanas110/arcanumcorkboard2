@@ -163,17 +163,17 @@ export const PostForm = ({ open, onClose, onSuccess }: PostFormProps) => {
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-lg max-w-[95vw] max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Post a Message</DialogTitle>
-          <DialogDescription>
+      <DialogContent className="sm:max-w-lg max-w-[95vw] max-h-[90vh] overflow-y-auto bg-[#fdfbf7] paper-texture border-none shadow-strong sm:rounded-xl">
+        <DialogHeader className="mb-2">
+          <DialogTitle className="text-2xl font-handwritten font-bold text-foreground/90">Post a Message</DialogTitle>
+          <DialogDescription className="font-medium text-foreground/60">
             Share your message for your secret people!
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="name">Name *</Label>
+        <form onSubmit={handleSubmit} className="space-y-6 mt-2">
+          <div className="space-y-1">
+            <Label htmlFor="name" className="text-foreground/70 font-bold uppercase tracking-wider text-[10px]">Name *</Label>
             <Input
               id="name"
               value={formData.name}
@@ -181,13 +181,14 @@ export const PostForm = ({ open, onClose, onSuccess }: PostFormProps) => {
               placeholder="Your name"
               maxLength={100}
               required
+              className="bg-transparent border-0 border-b-2 border-foreground/10 rounded-none px-0 focus-visible:ring-0 focus-visible:border-primary font-handwritten text-lg shadow-none"
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="facebookLink">Facebook Account Link *</Label>
+          <div className="space-y-1">
+            <Label htmlFor="facebookLink" className="text-foreground/70 font-bold uppercase tracking-wider text-[10px]">Facebook Account Link *</Label>
             <div className="relative">
-              <Facebook className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <Facebook className="absolute left-0 top-3 h-5 w-5 text-muted-foreground/50" />
               <Input
                 id="facebookLink"
                 value={formData.facebookLink}
@@ -201,39 +202,39 @@ export const PostForm = ({ open, onClose, onSuccess }: PostFormProps) => {
                   }
                 }}
                 placeholder="https://facebook.com/your.profile"
-                className={`pl-9 ${facebookLinkError ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
+                className={`pl-8 bg-transparent border-0 border-b-2 border-foreground/10 rounded-none px-0 focus-visible:ring-0 focus-visible:border-primary font-handwritten text-lg shadow-none ${facebookLinkError ? 'border-red-500' : ''}`}
                 required
               />
             </div>
             {facebookLinkError && (
-              <p className="text-xs text-red-500">
+              <p className="text-xs text-red-500 font-medium pt-1">
                 {facebookLinkError}
               </p>
             )}
-            <p className="text-xs text-muted-foreground">
+            <p className="text-[10px] uppercase text-muted-foreground font-medium pt-1">
               Only visible to administrators. Required for verification.
             </p>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="batch">Batch *</Label>
+          <div className="space-y-1">
+            <Label htmlFor="batch" className="text-foreground/70 font-bold uppercase tracking-wider text-[10px]">Batch *</Label>
             <Select
               value={formData.batch}
               onValueChange={(value) => setFormData({ ...formData, batch: value })}
               required
             >
-              <SelectTrigger>
+              <SelectTrigger className="bg-transparent border-0 border-b-2 border-foreground/10 rounded-none px-0 focus:ring-0 focus:border-primary font-handwritten text-lg shadow-none">
                 <SelectValue placeholder="Select your batch" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="1">Batch 1</SelectItem>
-                <SelectItem value="2">Batch 2</SelectItem>
+                <SelectItem value="1" className="font-handwritten text-base">Batch 1</SelectItem>
+                <SelectItem value="2" className="font-handwritten text-base">Batch 2</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="message">Message *</Label>
+          <div className="space-y-1">
+            <Label htmlFor="message" className="text-foreground/70 font-bold uppercase tracking-wider text-[10px]">Message *</Label>
             <Textarea
               id="message"
               value={formData.message}
@@ -242,14 +243,15 @@ export const PostForm = ({ open, onClose, onSuccess }: PostFormProps) => {
               rows={5}
               maxLength={1000}
               required
+              className="bg-transparent border-0 border-b-2 border-foreground/10 rounded-none px-0 focus-visible:ring-0 focus-visible:border-primary font-handwritten text-lg resize-none min-h-[120px] shadow-none"
             />
-            <p className="text-xs text-muted-foreground text-right">
+            <p className="text-xs font-medium text-muted-foreground text-right pt-1">
               {formData.message.length}/1000
             </p>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="image">Image (optional, max 100KB)</Label>
+          <div className="space-y-1 pt-2">
+            <Label htmlFor="image" className="text-foreground/70 font-bold uppercase tracking-wider text-[10px]">Image (optional, max 100KB)</Label>
             <div className="space-y-2 w-full min-w-0">
               <Input
                 id="image"
@@ -262,42 +264,42 @@ export const PostForm = ({ open, onClose, onSuccess }: PostFormProps) => {
                 type="button"
                 variant="outline"
                 onClick={() => document.getElementById('image')?.click()}
-                className="w-full flex items-center justify-start gap-2 min-w-0 overflow-hidden"
+                className="w-full flex items-center justify-start gap-2 min-w-0 overflow-hidden bg-white/50 border-foreground/10 hover:bg-white/80"
               >
-                <Upload className="w-4 h-4 flex-shrink-0" />
-                <span className="truncate min-w-0 text-left block overflow-hidden text-ellipsis whitespace-nowrap max-w-0 flex-1">
+                <Upload className="w-4 h-4 flex-shrink-0 text-foreground/70" />
+                <span className="truncate min-w-0 text-left block overflow-hidden text-ellipsis whitespace-nowrap max-w-0 flex-1 font-handwritten text-base text-foreground/80">
                   {imageFile ? imageFile.name : 'Choose Image'}
                 </span>
               </Button>
               {imageFile && (
                 <Button
                   type="button"
-                  variant="outline"
+                  variant="ghost"
                   size="sm"
                   onClick={handleRemoveImage}
-                  className="w-full"
+                  className="w-full text-red-500 hover:text-red-600 hover:bg-red-50 uppercase text-[10px] tracking-wider font-bold h-8"
                   title="Remove image"
                 >
-                  <X className="w-4 h-4 mr-2" />
+                  <X className="w-3 h-3 mr-1" />
                   Remove Image
                 </Button>
               )}
             </div>
           </div>
 
-          <div className="flex gap-3 pt-4">
+          <div className="flex gap-4 pt-6 pb-2">
             <Button
               type="button"
               variant="outline"
               onClick={onClose}
-              className="flex-1"
+              className="flex-1 rounded-full border-foreground/20 hover:bg-foreground/5 font-bold"
               disabled={loading}
             >
               Cancel
             </Button>
             <Button
               type="submit"
-              className="flex-1"
+              className="flex-1 rounded-full shadow-md hover:shadow-lg transition-shadow bg-primary hover:bg-primary/90 text-primary-foreground font-bold"
               disabled={loading}
             >
               {loading ? 'Posting...' : 'Post Message'}
