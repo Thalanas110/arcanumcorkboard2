@@ -150,3 +150,34 @@ Your website won't work yet because the secret database keys are missing on the 
 -   **"Command not found"**: This usually means Git, Node.js, or Netlify CLI didn't install correctly. Try restarting your computer.
 -   **Red Errors during npm install**: Check your internet connection and try running `npm install` again.
 -   **Website is blank**: Open the "Inspector" in your browser (Right click -> Inspect -> Console tab) to see if there are errors related to the `.env` keys.
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Frontend Framework | [React](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/) |
+| Build Tool | [Vite](https://vitejs.dev/) |
+| Styling | [Tailwind CSS](https://tailwindcss.com/) + Vanilla CSS |
+| Backend / Database | [Supabase](https://supabase.com/) (PostgreSQL + Auth + Realtime) |
+| Deployment | [Netlify](https://www.netlify.com/) |
+| Package Manager | [npm](https://www.npmjs.com/) |
+
+---
+
+## License
+
+**Proprietary — All Rights Reserved.**
+
+Copyright © 2025 Thalanas110. This software and its source code are private and confidential. No part of this project may be copied, modified, distributed, sublicensed, or used in any form without explicit written permission from the owner.
+
+---
+
+## Acknowledgements
+
+- [Supabase](https://supabase.com/) — for the awesome open-source BaaS platform.
+- [Vite](https://vitejs.dev/) — for the blazing-fast build tooling.
+- [React](https://react.dev/) — for the component model that powers the UI.
+- [Netlify](https://www.netlify.com/) — for the seamless free-tier hosting.
+- Everyone who has posted (anonymously or otherwise) on the corkboard. 📌
