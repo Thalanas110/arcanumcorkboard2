@@ -42,14 +42,10 @@ export const PostCard = ({ post, onClick, index = 0 }: PostCardProps) => {
         animationDelay,
       } as React.CSSProperties}
     >
-      {/* Simple tape or pin effect */}
-      {rotation % 2 === 0 ? (
-        <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-16 h-6 bg-white/40 shadow-sm backdrop-blur-[2px] -rotate-2 z-10 border border-white/50" />
-      ) : (
-        <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-20 text-slate-800/50 drop-shadow-sm">
-          <Pin className={`w-8 h-8 ${post.is_pinned ? 'text-autumn-crimson fill-autumn-crimson/80' : 'fill-slate-800/10'}`} style={{ transform: 'rotate(45deg)' }} />
-        </div>
-      )}
+      {/* Pin */}
+      <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-20 text-slate-800/50 drop-shadow-sm">
+        <Pin className={`w-8 h-8 ${post.is_pinned ? 'text-autumn-crimson fill-autumn-crimson/80' : 'fill-slate-800/10'}`} style={{ transform: 'rotate(45deg)' }} />
+      </div>
 
       {/* Header */}
       <div className="mb-4 pt-3 flex-none">

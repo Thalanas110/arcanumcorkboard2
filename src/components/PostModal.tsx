@@ -35,8 +35,7 @@ export const PostModal = ({ post, open, onClose, showAdminDetails }: PostModalPr
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className={`sm:max-w-2xl max-h-[85vh] overflow-y-auto ${noteColor} paper-texture border-none shadow-strong sm:rounded-xl`}>
-        {/* Tape effect */}
-        <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-24 h-8 bg-white/30 shadow-sm backdrop-blur-[2px] -rotate-1 z-10 border border-white/40" />
+
         
         <DialogHeader className="pt-6 pb-2">
           <div className="flex items-start justify-between gap-4">
