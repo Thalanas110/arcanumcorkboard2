@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart, Bar, PieChart, Pie, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from "recharts";
 import { MessageSquare, Users, TrendingUp, Calendar } from "lucide-react";
+import { visitService, type WebsiteVisit } from "@/services/visitService";
 
 interface AnalyticsDashboardProps {
   posts: any[];
@@ -20,16 +20,15 @@ export const AnalyticsDashboard = ({ posts, loading }: AnalyticsDashboardProps) 
     );
   }
 
-  const [visits, setVisits] = useState<any[]>([]);
+  const [visits, setVisits] = useState<WebsiteVisit[]>([]);
 
   useEffect(() => {
-    const fetchVisits = async () => {
-      const { data } = await supabase
-        .from('website_visits')
-        .select('*');
-      if (data) setVisits(data);
-    };
-    fetchVisits();
+    visitService
+      .fetchAll()
+      .then((data) => setVisits(data))
+      .catch(() => {
+        // silently ignore — analytics remain empty
+      });
   }, []);
 
   // Calculate statistics

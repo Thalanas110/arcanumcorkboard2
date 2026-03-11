@@ -1,14 +1,14 @@
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { format } from "date-fns";
 import { LogsTable } from "./LogsTable";
+import { logService, type SystemLog } from "@/services/logService";
 
 export const LogsDashboard = () => {
-    const [logs, setLogs] = useState<any[]>([]);
+    const [logs, setLogs] = useState<SystemLog[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -17,16 +17,10 @@ export const LogsDashboard = () => {
 
     const fetchLogs = async () => {
         try {
-            const { data, error } = await supabase
-                .from('system_logs')
-                .select('*')
-                .order('created_at', { ascending: false })
-                .limit(100);
-
-            if (error) throw error;
-            setLogs(data || []);
-        } catch (error) {
-            console.error('Error fetching logs:', error);
+            const data = await logService.fetchRecent();
+            setLogs(data);
+        } catch (err) {
+            // silently ignore — table shows empty state
         } finally {
             setLoading(false);
         }

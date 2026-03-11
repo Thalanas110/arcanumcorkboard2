@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { postService, type Post } from "@/services/postService";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LogOut, LayoutDashboard, MessageSquare } from "lucide-react";
@@ -13,50 +13,25 @@ interface AdminDashboardProps {
 }
 
 export const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
-  const [posts, setPosts] = useState<any[]>([]);
+  const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [initialLoadComplete, setInitialLoadComplete] = useState(false);
 
-  useEffect(() => {
-    fetchPosts();
-
-    // Subscribe to realtime updates
-    const channel = supabase
-      .channel('admin-posts-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'posts'
-        },
-        () => {
-          fetchPosts();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, []);
-
   const fetchPosts = async () => {
     try {
-      const { data, error } = await supabase
-        .from('posts')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setPosts(data || []);
-    } catch (error) {
-      console.error('Error fetching posts:', error);
+      const data = await postService.fetchAll();
+      setPosts(data);
+    } catch (err) {
+      // Error is swallowed intentionally — UI shows empty state
     } finally {
-      // Only set loading to false, let LoadingScreen handle timing
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchPosts();
+    return postService.subscribeToChanges('admin-posts-changes', fetchPosts);
+  }, []);
 
   // Show loading screen if still loading
   if (!initialLoadComplete) {

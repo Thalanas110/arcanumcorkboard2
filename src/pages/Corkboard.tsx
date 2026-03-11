@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { postService, type Post } from "@/services/postService";
 import { Button } from "@/components/ui/button";
 import { PostCard } from "@/components/PostCard";
 import { PostForm } from "@/components/PostForm";
@@ -8,16 +8,7 @@ import { LoadingScreen } from "@/components/LoadingScreen";
 import { Pin, Plus, Menu, X } from "lucide-react";
 import backgroundImage from "@/assets/granite-texture.jpg";
 
-interface Post {
-  id: string;
-  name: string;
-  batch: number;
-  message: string;
-  image_url: string | null;
-  facebook_link: string;
-  is_pinned: boolean;
-  created_at: string;
-}
+
 
 const Corkboard = () => {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -27,49 +18,21 @@ const Corkboard = () => {
   const [initialLoadComplete, setInitialLoadComplete] = useState(false);
   const [sidenavOpen, setSidenavOpen] = useState(false);
 
-  // Fetch posts
-  useEffect(() => {
-    fetchPosts();
-
-    // Subscribe to realtime updates
-    const channel = supabase
-      .channel('posts-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'posts'
-        },
-        () => {
-          fetchPosts();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, []);
-
   const fetchPosts = async () => {
     try {
-      const { data, error } = await supabase
-        .from('posts')
-        .select('*')
-        .eq('is_hidden', false)
-        .order('is_pinned', { ascending: false })
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setPosts((data as unknown as Post[]) || []);
-    } catch (error) {
-      console.error('Error fetching posts:', error);
+      const data = await postService.fetchPublic();
+      setPosts(data);
+    } catch (err) {
+      // Error is swallowed intentionally — UI shows empty state
     } finally {
-      // Only set loading to false, let LoadingScreen handle timing
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchPosts();
+    return postService.subscribeToChanges('posts-changes', fetchPosts);
+  }, []);
 
   // Show loading screen if still loading
   if (!initialLoadComplete) {

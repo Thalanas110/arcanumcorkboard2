@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,6 +8,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 import { Upload, X, Facebook } from "lucide-react";
 import { logger } from "@/lib/logger";
+import { postService } from "@/services/postService";
+import { rateLimitService } from "@/services/rateLimitService";
+import { storageService } from "@/services/storageService";
 
 interface PostFormProps {
   open: boolean;
@@ -72,7 +74,6 @@ export const PostForm = ({ open, onClose, onSuccess }: PostFormProps) => {
       return;
     }
 
-    // Validate Facebook link
     if (!validateFacebookLink(formData.facebookLink)) {
       toast.error('Please enter a valid Facebook profile link');
       return;
@@ -81,69 +82,26 @@ export const PostForm = ({ open, onClose, onSuccess }: PostFormProps) => {
     setLoading(true);
 
     try {
-      // Check rate limit
-      const { data: rateLimitData } = await supabase
-        .from('rate_limits')
-        .select('*')
-        .eq('ip_address', 'anonymous')
-        .single();
-
-      if (rateLimitData) {
-        const lastPost = new Date(rateLimitData.last_post_at);
-        const now = new Date();
-        const diffMinutes = (now.getTime() - lastPost.getTime()) / (1000 * 60);
-
-        if (diffMinutes < 5) {
-          toast.error(`Please wait ${Math.ceil(5 - diffMinutes)} minutes before posting again`);
-          setLoading(false);
-          return;
-        }
+      const remainingMinutes = await rateLimitService.getRemainingMinutes();
+      if (remainingMinutes !== null) {
+        toast.error(`Please wait ${remainingMinutes} minutes before posting again`);
+        setLoading(false);
+        return;
       }
 
-      let imageUrl = null;
+      const imageUrl = imageFile
+        ? await storageService.uploadPostImage(imageFile)
+        : null;
 
-      // Upload image if provided
-      if (imageFile) {
-        const fileExt = imageFile.name.split('.').pop();
-        const fileName = `posts/${Date.now()}.${fileExt}`;
+      await postService.create({
+        name: formData.name.trim(),
+        batch: parseInt(formData.batch),
+        message: formData.message.trim(),
+        image_url: imageUrl,
+        facebook_link: formData.facebookLink.trim(),
+      });
 
-        const { error: uploadError, data } = await supabase.storage
-          .from('post-images')
-          .upload(fileName, imageFile);
-
-        if (uploadError) throw uploadError;
-
-        const { data: { publicUrl } } = supabase.storage
-          .from('post-images')
-          .getPublicUrl(fileName);
-
-        imageUrl = publicUrl;
-      }
-
-      // Create post
-      const { error: postError } = await supabase
-        .from('posts')
-        .insert({
-          name: formData.name.trim(),
-          batch: parseInt(formData.batch),
-          message: formData.message.trim(),
-          image_url: imageUrl,
-          facebook_link: formData.facebookLink.trim(),
-        });
-
-      if (postError) throw postError;
-
-      // Update rate limit
-      if (rateLimitData) {
-        await supabase
-          .from('rate_limits')
-          .update({ last_post_at: new Date().toISOString() })
-          .eq('ip_address', 'anonymous');
-      } else {
-        await supabase
-          .from('rate_limits')
-          .insert({ ip_address: 'anonymous' });
-      }
+      await rateLimitService.recordPost();
 
       toast.success('Message posted successfully!');
       logger.info('New message posted', {
@@ -152,9 +110,8 @@ export const PostForm = ({ open, onClose, onSuccess }: PostFormProps) => {
         hasImage: !!imageUrl
       });
       onSuccess();
-    } catch (error) {
-      console.error('Error posting message:', error);
-      logger.error('Failed to post message', { error });
+    } catch (err) {
+      logger.error('Failed to post message', { error: err });
       toast.error('Failed to post message. Please try again.');
     } finally {
       setLoading(false);
