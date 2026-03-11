@@ -6,7 +6,7 @@ import { PostForm } from "@/components/PostForm";
 import { PostModal } from "@/components/PostModal";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { Pin, Plus, Menu, X } from "lucide-react";
-import backgroundImage from "@/assets/granite-texture.jpg";
+import backgroundImage from "@/assets/anon corkboard monthsary n edited.jpg";
 
 
 
