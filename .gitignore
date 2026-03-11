@@ -27,3 +27,4 @@ dist-ssr
 .netlify/
 .env
 config.toml
+src/integrations/supabase/client.ts
