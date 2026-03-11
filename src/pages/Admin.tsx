@@ -61,7 +61,6 @@ const Admin = () => {
         logger.warn('Unauthorized admin access attempt', { userId });
       }
     } catch (error) {
-      console.error('Error checking admin role:', error);
       logger.error('Error checking admin role', { error, userId });
       setIsAdmin(false);
     } finally {
@@ -78,7 +77,7 @@ const Admin = () => {
       setIsAdmin(false);
       logger.info('User logged out manually');
     } catch (error) {
-      console.error('Error signing out:', error);
+      // Intentionally swallowed
     } finally {
       navigate('/');
     }

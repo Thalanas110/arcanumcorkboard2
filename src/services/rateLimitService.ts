@@ -1,54 +1,25 @@
 import { supabase } from "@/integrations/supabase/client";
 
-interface RateLimitRecord {
-  ip_address: string;
-  last_post_at: string;
-}
-
-const ANONYMOUS_IP = "anonymous";
-const RATE_LIMIT_MINUTES = 5;
-
 export const rateLimitService = {
   /**
    * Returns the number of minutes remaining if the user is rate-limited,
    * or null if they are allowed to post.
+   *
+   * The IP is resolved server-side via `inet_client_addr()` inside the
+   * Postgres function — the client cannot spoof it.
    */
   async getRemainingMinutes(): Promise<number | null> {
-    const { data } = await supabase
-      .from("rate_limits")
-      .select("*")
-      .eq("ip_address", ANONYMOUS_IP)
-      .single<RateLimitRecord>();
-
-    if (!data) return null;
-
-    const diffMinutes =
-      (Date.now() - new Date(data.last_post_at).getTime()) / (1000 * 60);
-
-    if (diffMinutes < RATE_LIMIT_MINUTES) {
-      return Math.ceil(RATE_LIMIT_MINUTES - diffMinutes);
-    }
-
-    return null;
+    const { data, error } = await supabase.rpc("get_rate_limit_status");
+    if (error) throw error;
+    return (data as number | null) ?? null;
   },
 
-  /** Record the current timestamp as the latest post for the anonymous user. */
+  /**
+   * Record that the caller just posted.
+   * The Postgres function upserts using the real connecting IP.
+   */
   async recordPost(): Promise<void> {
-    const { data: existing } = await supabase
-      .from("rate_limits")
-      .select("ip_address")
-      .eq("ip_address", ANONYMOUS_IP)
-      .single<Pick<RateLimitRecord, "ip_address">>();
-
-    if (existing) {
-      await supabase
-        .from("rate_limits")
-        .update({ last_post_at: new Date().toISOString() })
-        .eq("ip_address", ANONYMOUS_IP);
-    } else {
-      await supabase
-        .from("rate_limits")
-        .insert({ ip_address: ANONYMOUS_IP });
-    }
+    const { error } = await supabase.rpc("record_rate_limit_post");
+    if (error) throw error;
   },
 };

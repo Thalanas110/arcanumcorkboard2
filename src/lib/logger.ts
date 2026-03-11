@@ -28,7 +28,7 @@ class Logger {
                 ip_address,
             });
         } catch (error) {
-            console.error('Failed to send log to Supabase:', error);
+            // Silently fail if logging fails
         }
     }
 

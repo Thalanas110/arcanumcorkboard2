@@ -149,6 +149,14 @@ export type Database = {
         }
         Returns: boolean
       }
+      get_rate_limit_status: {
+        Args: Record<PropertyKey, never>
+        Returns: number | null
+      }
+      record_rate_limit_post: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "user"
