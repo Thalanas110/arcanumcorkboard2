@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,6 +11,7 @@ import { logger } from "@/lib/logger";
 import { postService } from "@/services/postService";
 import { rateLimitService } from "@/services/rateLimitService";
 import { storageService } from "@/services/storageService";
+import { batchService, type Batch } from "@/services/batchService";
 
 interface PostFormProps {
   open: boolean;
@@ -28,6 +29,11 @@ export const PostForm = ({ open, onClose, onSuccess }: PostFormProps) => {
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [facebookLinkError, setFacebookLinkError] = useState<string>('');
+  const [batches, setBatches] = useState<Batch[]>([]);
+
+  useEffect(() => {
+    batchService.fetchAll().then(setBatches).catch(() => {});
+  }, []);
 
   const validateFacebookLink = (link: string): boolean => {
     if (!link.trim()) {
@@ -184,8 +190,11 @@ export const PostForm = ({ open, onClose, onSuccess }: PostFormProps) => {
                 <SelectValue placeholder="Select your batch" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="1" className="font-handwritten text-base">Batch 1</SelectItem>
-                <SelectItem value="2" className="font-handwritten text-base">Batch 2</SelectItem>
+                {batches.map((b) => (
+                  <SelectItem key={b.batch_number} value={String(b.batch_number)} className="font-handwritten text-base">
+                    {b.label}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
