@@ -46,13 +46,14 @@ export const LogsDashboard = () => {
         const tableData = logs.map(log => [
             log.level.toUpperCase(),
             log.message,
+            log.ip_address ?? '—',
             format(new Date(log.created_at), 'yyyy-MM-dd HH:mm:ss')
         ]);
 
         // Generate table
         autoTable(doc, {
             startY: 40,
-            head: [['Level', 'Message', 'Time']],
+            head: [['Level', 'Message', 'IP Address', 'Time']],
             body: tableData,
             styles: { fontSize: 8 },
             headStyles: { fillColor: [41, 128, 185] }, // Blue header
