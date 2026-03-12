@@ -35,8 +35,7 @@ export const PostModal = ({ post, open, onClose, showAdminDetails }: PostModalPr
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className={`sm:max-w-2xl max-h-[85vh] overflow-y-auto ${noteColor} paper-texture border-none shadow-strong sm:rounded-xl`}>
-        {/* Tape effect */}
-        <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-24 h-8 bg-white/30 shadow-sm backdrop-blur-[2px] -rotate-1 z-10 border border-white/40" />
+
         
         <DialogHeader className="pt-6 pb-2">
           <div className="flex items-start justify-between gap-4">
@@ -65,14 +64,16 @@ export const PostModal = ({ post, open, onClose, showAdminDetails }: PostModalPr
 
         <div className="space-y-4 mt-4">
           {showAdminDetails && post.facebook_link && (
-            <div className="bg-muted/50 p-3 rounded-md flex items-center gap-2 text-sm">
-              <Facebook className="w-4 h-4 text-blue-600" />
-              <span className="font-semibold">Facebook Profile:</span>
+            <div className="bg-muted/50 p-3 rounded-md text-sm">
+              <div className="flex items-center gap-2 mb-1">
+                <Facebook className="w-4 h-4 text-blue-600 shrink-0" />
+                <span className="font-semibold">Facebook Profile:</span>
+              </div>
               <a
                 href={post.facebook_link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-primary hover:underline truncate"
+                className="text-primary hover:underline break-all block"
               >
                 {post.facebook_link}
               </a>

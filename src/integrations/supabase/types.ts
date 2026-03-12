@@ -98,6 +98,7 @@ export type Database = {
           level: "info" | "warn" | "error"
           message: string
           metadata: Json | null
+          ip_address: string | null
           created_at: string
         }
         Insert: {
@@ -105,6 +106,7 @@ export type Database = {
           level: "info" | "warn" | "error"
           message: string
           metadata?: Json | null
+          ip_address?: string | null
           created_at?: string
         }
         Update: {
@@ -112,6 +114,7 @@ export type Database = {
           level?: "info" | "warn" | "error"
           message?: string
           metadata?: Json | null
+          ip_address?: string | null
           created_at?: string
         }
         Relationships: []
@@ -145,6 +148,14 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      get_rate_limit_status: {
+        Args: Record<PropertyKey, never>
+        Returns: number | null
+      }
+      record_rate_limit_post: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
     }
     Enums: {

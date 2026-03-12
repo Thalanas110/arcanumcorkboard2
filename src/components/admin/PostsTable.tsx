@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -9,34 +8,28 @@ import { toast } from "sonner";
 import { Trash2, Pin, Eye, EyeOff } from "lucide-react";
 import { PostModal } from "@/components/PostModal";
 import { logger } from "@/lib/logger";
+import { postService, type Post } from "@/services/postService";
 
 interface PostsTableProps {
-  posts: any[];
+  posts: Post[];
   loading: boolean;
   onUpdate: () => void;
 }
 
 export const PostsTable = ({ posts, loading, onUpdate }: PostsTableProps) => {
   const [deleteId, setDeleteId] = useState<string | null>(null);
-  const [viewPost, setViewPost] = useState<any | null>(null);
+  const [viewPost, setViewPost] = useState<Post | null>(null);
 
   const handleDelete = async () => {
     if (!deleteId) return;
 
     try {
-      const { error } = await supabase
-        .from('posts')
-        .delete()
-        .eq('id', deleteId);
-
-      if (error) throw error;
-
+      await postService.remove(deleteId);
       toast.success('Post deleted successfully');
       logger.info('Admin deleted a post', { postId: deleteId });
       onUpdate();
-    } catch (error) {
-      console.error('Error deleting post:', error);
-      logger.error('Failed to delete post', { error, postId: deleteId });
+    } catch (err) {
+      logger.error('Failed to delete post', { error: err, postId: deleteId });
       toast.error('Failed to delete post');
     } finally {
       setDeleteId(null);
@@ -45,34 +38,20 @@ export const PostsTable = ({ posts, loading, onUpdate }: PostsTableProps) => {
 
   const handleTogglePin = async (id: string, currentPinned: boolean) => {
     try {
-      const { error } = await supabase
-        .from('posts')
-        .update({ is_pinned: !currentPinned })
-        .eq('id', id);
-
-      if (error) throw error;
-
+      await postService.togglePin(id, currentPinned);
       toast.success(currentPinned ? 'Post unpinned' : 'Post pinned');
       onUpdate();
-    } catch (error) {
-      console.error('Error toggling pin:', error);
+    } catch (err) {
       toast.error('Failed to update post');
     }
   };
 
   const handleToggleHide = async (id: string, currentHidden: boolean) => {
     try {
-      const { error } = await supabase
-        .from('posts')
-        .update({ is_hidden: !currentHidden })
-        .eq('id', id);
-
-      if (error) throw error;
-
+      await postService.toggleHide(id, currentHidden);
       toast.success(currentHidden ? 'Post visible' : 'Post hidden');
       onUpdate();
-    } catch (error) {
-      console.error('Error toggling hide:', error);
+    } catch (err) {
       toast.error('Failed to update post');
     }
   };

@@ -11,47 +11,24 @@ export const AdminLogin = () => {
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isSignup, setIsSignup] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      const redirectUrl = `${window.location.origin}/admin`;
-      
-      if (isSignup) {
-        // Sign up
-        /*
-        const { data, error } = await supabase.auth.signUp({
-          email: email.trim(),
-          password: password,
-          options: {
-            emailRedirectTo: redirectUrl
-          }
-        });
+      const { error } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password: password,
+      });
 
-        if (error) throw error;
-        
-        if (data.user) {
-          toast.success('Account created! You can now log in.');
-          setIsSignup(false);
-        }*/
-       console.log('Signup is currently disabled.');
-      } else {
-        // Sign in
-        const { error } = await supabase.auth.signInWithPassword({
-          email: email.trim(),
-          password: password,
-        });
+      if (error) throw error;
 
-        if (error) throw error;
-        
-        toast.success('Logged in successfully!');
-      }
-    } catch (error: any) {
-      console.error('Auth error:', error);
-      toast.error(error.message || 'Authentication failed');
+      toast.success('Logged in successfully!');
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : 'Authentication failed';
+      toast.error(message);
     } finally {
       setLoading(false);
     }
@@ -62,13 +39,10 @@ export const AdminLogin = () => {
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold text-center">
-            {isSignup ? 'Create Admin Account' : 'Admin Login'}
+            Admin Login
           </CardTitle>
           <CardDescription className="text-center">
-            {isSignup 
-              ? 'Create your admin account to manage the corkboard'
-              : 'Enter your credentials to access the admin dashboard'
-            }
+            Enter your credentials to access the admin dashboard
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -106,26 +80,14 @@ export const AdminLogin = () => {
                 disabled={loading}
               >
                 {loading ? (
-                  isSignup ? 'Creating account...' : 'Logging in...'
+                  'Logging in...'
                 ) : (
                   <>
                     <LogIn className="w-4 h-4 mr-2" />
-                    {isSignup ? 'Sign Up' : 'Login'}
+                    Login
                   </>
                 )}
               </Button>
-              
-              {/*
-              <Button
-                type="button"
-                variant="ghost"
-                className="w-full"
-                onClick={() => setIsSignup(!isSignup)}
-                disabled={loading}
-              >
-                {isSignup ? 'Already have an account? Login' : 'Need an account? Sign Up'}
-              </Button>
-              */}
 
               <Button
                 type="button"

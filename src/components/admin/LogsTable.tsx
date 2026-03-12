@@ -7,7 +7,8 @@ interface Log {
     id: string;
     level: 'info' | 'warn' | 'error';
     message: string;
-    metadata: any;
+    metadata: Record<string, unknown> | null;
+    ip_address: string | null;
     created_at: string;
 }
 
@@ -45,13 +46,14 @@ export const LogsTable = ({ logs, loading }: LogsTableProps) => {
                     <TableRow>
                         <TableHead>Level</TableHead>
                         <TableHead>Message</TableHead>
+                        <TableHead>IP Address</TableHead>
                         <TableHead>Time</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
                     {logs.length === 0 ? (
                         <TableRow>
-                            <TableCell colSpan={3} className="text-center py-8 text-muted-foreground">
+                            <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
                                 No logs found
                             </TableCell>
                         </TableRow>
@@ -60,6 +62,9 @@ export const LogsTable = ({ logs, loading }: LogsTableProps) => {
                             <TableRow key={log.id}>
                                 <TableCell>{getLevelBadge(log.level)}</TableCell>
                                 <TableCell className="font-medium">{log.message}</TableCell>
+                                <TableCell className="text-muted-foreground text-sm font-mono">
+                                    {log.ip_address ?? '—'}
+                                </TableCell>
                                 <TableCell className="text-muted-foreground text-sm">
                                     {format(new Date(log.created_at), 'MMM d, yyyy HH:mm:ss')}
                                 </TableCell>

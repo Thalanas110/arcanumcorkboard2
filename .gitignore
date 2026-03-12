@@ -23,5 +23,7 @@ dist-ssr
 *.sln
 *.sw?
 
-# Netlify deployment files
+# Netlify deployment files and .env files
 .netlify/
+.env
+config.toml

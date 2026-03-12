@@ -3,44 +3,20 @@ import { Plane } from "lucide-react";
 
 interface LoadingScreenProps {
   onComplete?: () => void;
-  isLoading?: boolean; // New prop to control loading state from parent
+  isLoading?: boolean;
 }
 
 export const LoadingScreen = ({ onComplete, isLoading = true }: LoadingScreenProps) => {
-  const [progress, setProgress] = useState(0);
   const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
-    let interval: NodeJS.Timeout;
-
-    if (isLoading) {
-      // Show indeterminate progress while actually loading
-      interval = setInterval(() => {
-        setProgress(prev => {
-          // Use a sine wave for smooth, realistic loading animation
-          const newProgress = 50 + Math.sin(Date.now() * 0.002) * 30;
-          return Math.max(0, Math.min(100, newProgress)); 
-        });
-      }, 50);
-    } else {
-      // Data is loaded, complete the progress bar
-      interval = setInterval(() => {
-        setProgress(prev => {
-          if (prev >= 100) {
-            clearInterval(interval);
-            // Wait for the progress bar to visually complete before hiding
-            setTimeout(() => {
-              setIsVisible(false);
-              onComplete?.();
-            }, 600);
-            return 100;
-          }
-          return prev + 3; // Quick completion
-        });
-      }, 20);
+    if (!isLoading) {
+      const timer = setTimeout(() => {
+        setIsVisible(false);
+        onComplete?.();
+      }, 700);
+      return () => clearTimeout(timer);
     }
-
-    return () => clearInterval(interval);
   }, [isLoading, onComplete]);
 
   if (!isVisible) return null;
@@ -62,6 +38,11 @@ export const LoadingScreen = ({ onComplete, isLoading = true }: LoadingScreenPro
           0% { transform: translateX(-100%); }
           100% { transform: translateX(100%); }
         }
+
+        @keyframes fly {
+          0%, 100% { transform: translateY(0px) translateX(-10px) rotate(-2deg); }
+          50% { transform: translateY(-15px) translateX(10px) rotate(2deg); }
+        }
         
         .animate-float {
           animation: float 6s ease-in-out infinite;
@@ -74,9 +55,13 @@ export const LoadingScreen = ({ onComplete, isLoading = true }: LoadingScreenPro
         .animate-shimmer {
           animation: shimmer 2s ease-in-out infinite;
         }
+
+        .animate-fly {
+          animation: fly 3s ease-in-out infinite;
+        }
       `}</style>
       
-      <div className="fixed inset-0 z-50 bg-gradient-to-br from-orange-400 via-amber-500 to-red-500 flex items-center justify-center">
+      <div className={`fixed inset-0 z-50 bg-gradient-to-br from-orange-400 via-amber-500 to-red-500 flex items-center justify-center transition-opacity duration-500 ${isLoading ? 'opacity-100' : 'opacity-0'}`}>
         {/* Clouds background */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute top-20 left-10 w-32 h-16 bg-white/30 rounded-full animate-float"></div>
@@ -88,28 +73,17 @@ export const LoadingScreen = ({ onComplete, isLoading = true }: LoadingScreenPro
         {/* Main content */}
         <div className="relative z-10 text-center text-white">
           {/* Plane animation */}
-          <div className="relative mb-8">
-            <div 
-              className="transform transition-all duration-300 ease-out"
-              style={{
-                transform: `translateX(${(progress - 50) * 2}px) translateY(${-progress * 0.5}px) rotate(${progress * 0.2}deg)`,
-              }}
-            >
+          <div className="relative mb-8 flex justify-center">
+            <div className={`transition-all duration-700 ease-out ${isLoading ? 'animate-fly' : 'translate-x-[200px] -translate-y-32 opacity-0'}`}>
               <Plane 
                 className="w-16 h-16 text-white drop-shadow-lg"
-                style={{
-                  filter: `drop-shadow(0 4px 8px rgba(0,0,0,0.3))`,
-                }}
+                style={{ filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.3))' }}
               />
             </div>
             
             {/* Plane trail */}
             <div 
-              className="absolute top-8 left-8 h-0.5 bg-white/60 rounded-full transition-all duration-300"
-              style={{
-                width: `${progress * 2}px`,
-                opacity: progress > 20 ? 0.6 : 0,
-              }}
+              className={`absolute top-8 left-1/2 -translate-x-12 h-0.5 bg-white/60 rounded-full transition-all duration-700 ${isLoading ? 'w-24 opacity-60' : 'w-0 opacity-0'}`}
             ></div>
           </div>
 
@@ -124,13 +98,12 @@ export const LoadingScreen = ({ onComplete, isLoading = true }: LoadingScreenPro
           {/* Progress bar */}
           <div className="w-80 max-w-sm mx-auto">
             <div className="flex justify-between items-center mb-2">
-              <span className="text-sm text-orange-100">Progress</span>
-              <span className="text-sm font-semibold">{Math.round(progress)}%</span>
+              <span className="text-sm text-orange-100">Status</span>
+              <span className="text-sm font-semibold">{isLoading ? 'Loading...' : 'Complete!'}</span>
             </div>
             <div className="w-full bg-white/25 rounded-full h-2 overflow-hidden backdrop-blur-sm">
               <div 
-                className="h-full bg-gradient-to-r from-white to-orange-200 rounded-full transition-all duration-300 ease-out relative"
-                style={{ width: `${progress}%` }}
+                className={`h-full bg-gradient-to-r from-white to-orange-200 rounded-full transition-all duration-[600ms] ease-out relative ${isLoading ? 'w-[75%]' : 'w-full'}`}
               >
                 {/* Shimmer effect */}
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer"></div>
@@ -139,7 +112,7 @@ export const LoadingScreen = ({ onComplete, isLoading = true }: LoadingScreenPro
           </div>
 
           {/* Loading dots */}
-          <div className="flex justify-center space-x-1 mt-6">
+          <div className={`flex justify-center space-x-1 mt-6 transition-opacity duration-300 ${isLoading ? 'opacity-100' : 'opacity-0'}`}>
             <div className="w-2 h-2 bg-white/60 rounded-full animate-bounce"></div>
             <div className="w-2 h-2 bg-white/60 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
             <div className="w-2 h-2 bg-white/60 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>

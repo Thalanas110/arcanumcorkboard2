@@ -35,33 +35,16 @@ export const PostCard = ({ post, onClick, index = 0 }: PostCardProps) => {
   return (
     <Card
       onClick={onClick}
-      className={`${noteColor} p-5 pb-6 cursor-pointer lift-effect overflow-visible note-shadow paper-texture organic-shape relative flex flex-col min-h-[220px] mb-8 lg:mb-10`}
+      className={`${noteColor} p-5 pb-6 cursor-pointer lift-effect overflow-visible note-shadow paper-texture rounded-md relative flex flex-col min-h-[220px] mb-8 lg:mb-10`}
       style={{
         '--tw-rotate': `${rotation}deg`,
         transform: `rotate(${rotation}deg)`,
         animationDelay,
       } as React.CSSProperties}
     >
-      {/* Tape effect (Optional, can be hidden if pin is better, but looks good mixed) */}
-      {rotation % 2 === 0 && (
-        <div className="absolute -top-3 right-4 w-16 h-6 bg-white/30 shadow-sm backdrop-blur-[2px] rotate-3 z-10 border border-white/40" />
-      )}
-
-      {/* 3D Pin */}
-      <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-20 transition-all duration-300 group-hover:-translate-y-1 scale-125">
-        <div className="css-pin">
-          <div className="css-pin-shadow" />
-          <div className="css-pin-needle" />
-          <div className="css-pin-base" />
-          <div 
-            className="css-pin-head" 
-            style={{ 
-              background: post.is_pinned 
-                ? 'radial-gradient(circle at 30% 30%, #ff6b6b, #c92a2a)' 
-                : 'radial-gradient(circle at 30% 30%, #fff, #94a3b8)' 
-            }} 
-          />
-        </div>
+      {/* Pin */}
+      <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-20 text-slate-800/50 drop-shadow-sm">
+        <Pin className={`w-8 h-8 ${post.is_pinned ? 'text-autumn-crimson fill-autumn-crimson/80' : 'fill-slate-800/10'}`} style={{ transform: 'rotate(45deg)' }} />
       </div>
 
       {/* Header */}

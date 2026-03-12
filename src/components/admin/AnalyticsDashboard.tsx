@@ -1,17 +1,35 @@
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart, Bar, PieChart, Pie, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from "recharts";
 import { MessageSquare, Users, TrendingUp, Calendar } from "lucide-react";
+import { visitService, type WebsiteVisit } from "@/services/visitService";
+import { batchService, type Batch } from "@/services/batchService";
 
 interface AnalyticsDashboardProps {
   posts: any[];
   loading: boolean;
 }
 
-const COLORS = ['hsl(var(--primary))', 'hsl(var(--secondary))'];
+const COLORS = [
+  'hsl(var(--primary))',
+  'hsl(var(--secondary))',
+  '#f59e0b',
+  '#10b981',
+  '#6366f1',
+  '#ec4899',
+  '#14b8a6',
+  '#f97316',
+];
 
 export const AnalyticsDashboard = ({ posts, loading }: AnalyticsDashboardProps) => {
+  const [visits, setVisits] = useState<WebsiteVisit[]>([]);
+  const [batches, setBatches] = useState<Batch[]>([]);
+
+  useEffect(() => {
+    visitService.fetchAll().then(setVisits).catch(() => {});
+    batchService.fetchAll().then(setBatches).catch(() => {});
+  }, []);
+
   if (loading) {
     return (
       <div className="text-center py-12">
@@ -20,29 +38,15 @@ export const AnalyticsDashboard = ({ posts, loading }: AnalyticsDashboardProps) 
     );
   }
 
-  const [visits, setVisits] = useState<any[]>([]);
-
-  useEffect(() => {
-    const fetchVisits = async () => {
-      const { data } = await supabase
-        .from('website_visits')
-        .select('*');
-      if (data) setVisits(data);
-    };
-    fetchVisits();
-  }, []);
-
   // Calculate statistics
   const totalPosts = posts.length;
   const totalVisits = visits.length;
-  const batch1Posts = posts.filter(p => p.batch === 1).length;
-  const batch2Posts = posts.filter(p => p.batch === 2).length;
 
-  // Posts per batch data
-  const batchData = [
-    { name: 'Batch 1', value: batch1Posts },
-    { name: 'Batch 2', value: batch2Posts },
-  ];
+  // Posts per batch data — tied to the batches table
+  const batchData = batches.map(b => ({
+    name: b.label,
+    value: posts.filter(p => p.batch === b.batch_number).length,
+  }));
 
   // Daily activity data
   const dailyActivity = posts.reduce((acc: any, post) => {
@@ -85,31 +89,20 @@ export const AnalyticsDashboard = ({ posts, loading }: AnalyticsDashboardProps) 
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Batch 1</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{batch1Posts}</div>
-            <p className="text-xs text-muted-foreground">
-              {totalPosts > 0 ? Math.round((batch1Posts / totalPosts) * 100) : 0}% of total
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Batch 2</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{batch2Posts}</div>
-            <p className="text-xs text-muted-foreground">
-              {totalPosts > 0 ? Math.round((batch2Posts / totalPosts) * 100) : 0}% of total
-            </p>
-          </CardContent>
-        </Card>
+        {batchData.map((b, i) => (
+          <Card key={i}>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">{b.name}</CardTitle>
+              <Users className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{b.value}</div>
+              <p className="text-xs text-muted-foreground">
+                {totalPosts > 0 ? Math.round((b.value / totalPosts) * 100) : 0}% of total
+              </p>
+            </CardContent>
+          </Card>
+        ))}
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
