@@ -1,11 +1,15 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Trash2, Pin, Eye, EyeOff, Download } from "lucide-react";
+import { Trash2, Pin, Eye, EyeOff, Download, Pencil } from "lucide-react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { format } from "date-fns";
@@ -62,6 +66,49 @@ interface PostsTableProps {
 export const PostsTable = ({ posts, loading, onUpdate }: PostsTableProps) => {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [viewPost, setViewPost] = useState<Post | null>(null);
+  const [editPost, setEditPost] = useState<Post | null>(null);
+  const [isSavingEdit, setIsSavingEdit] = useState(false);
+  const [facebookLinkError, setFacebookLinkError] = useState("");
+  const [editFormData, setEditFormData] = useState({
+    name: "",
+    batch: "",
+    message: "",
+    facebookLink: "",
+  });
+
+  const validateFacebookLink = (link: string): boolean => {
+    const trimmedLink = link.trim();
+    if (!trimmedLink) {
+      setFacebookLinkError("Facebook link is required");
+      return false;
+    }
+
+    const facebookRegex = /^https?:\/\/(www\.|m\.)?facebook\.com\/.*$|^https?:\/\/(www\.)?fb\.com\/.*$/i;
+    if (!facebookRegex.test(trimmedLink)) {
+      setFacebookLinkError("Please enter a valid Facebook profile link");
+      return false;
+    }
+
+    setFacebookLinkError("");
+    return true;
+  };
+
+  const openEditDialog = (post: Post) => {
+    setEditPost(post);
+    setFacebookLinkError("");
+    setEditFormData({
+      name: post.name,
+      batch: String(post.batch),
+      message: post.message,
+      facebookLink: post.facebook_link ?? "",
+    });
+  };
+
+  const closeEditDialog = () => {
+    if (isSavingEdit) return;
+    setEditPost(null);
+    setFacebookLinkError("");
+  };
 
   const handleExportPDF = async () => {
     if (posts.length === 0) return;
@@ -239,6 +286,47 @@ export const PostsTable = ({ posts, loading, onUpdate }: PostsTableProps) => {
     }
   };
 
+  const handleEditSave = async () => {
+    if (!editPost) return;
+
+    const trimmedName = editFormData.name.trim();
+    const trimmedMessage = editFormData.message.trim();
+    const trimmedFacebookLink = editFormData.facebookLink.trim();
+    const parsedBatch = Number.parseInt(editFormData.batch, 10);
+
+    if (!trimmedName || !trimmedMessage || !trimmedFacebookLink || Number.isNaN(parsedBatch)) {
+      toast.error("Please complete all fields");
+      return;
+    }
+
+    if (!validateFacebookLink(trimmedFacebookLink)) {
+      toast.error("Please enter a valid Facebook profile link");
+      return;
+    }
+
+    setIsSavingEdit(true);
+
+    try {
+      await postService.update(editPost.id, {
+        name: trimmedName,
+        batch: parsedBatch,
+        message: trimmedMessage,
+        facebook_link: trimmedFacebookLink,
+      });
+
+      toast.success("Post updated successfully");
+      logger.info("Admin edited a post", { postId: editPost.id });
+      setEditPost(null);
+      setFacebookLinkError("");
+      onUpdate();
+    } catch (err) {
+      logger.error("Failed to update post", { error: err, postId: editPost.id });
+      toast.error("Failed to update post");
+    } finally {
+      setIsSavingEdit(false);
+    }
+  };
+
   if (loading) {
     return (
       <Card>
@@ -325,6 +413,13 @@ export const PostsTable = ({ posts, loading, onUpdate }: PostsTableProps) => {
                           <Button
                             size="sm"
                             variant="ghost"
+                            onClick={() => openEditDialog(post)}
+                          >
+                            <Pencil className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
                             onClick={() => handleTogglePin(post.id, post.is_pinned)}
                           >
                             <Pin className="w-4 h-4" />
@@ -383,6 +478,96 @@ export const PostsTable = ({ posts, loading, onUpdate }: PostsTableProps) => {
           showAdminDetails={true}
         />
       )}
+
+      <Dialog open={!!editPost} onOpenChange={closeEditDialog}>
+        <DialogContent className="sm:max-w-lg max-w-[95vw]">
+          <DialogHeader>
+            <DialogTitle>Edit Post</DialogTitle>
+            <DialogDescription>
+              Update the message details and Facebook link for this post.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="edit-name">Name</Label>
+              <Input
+                id="edit-name"
+                value={editFormData.name}
+                onChange={(event) =>
+                  setEditFormData((prev) => ({ ...prev, name: event.target.value }))
+                }
+                maxLength={100}
+                disabled={isSavingEdit}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="edit-batch">Batch</Label>
+              <Input
+                id="edit-batch"
+                type="number"
+                min={1}
+                value={editFormData.batch}
+                onChange={(event) =>
+                  setEditFormData((prev) => ({ ...prev, batch: event.target.value }))
+                }
+                disabled={isSavingEdit}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="edit-message">Message</Label>
+              <Textarea
+                id="edit-message"
+                value={editFormData.message}
+                onChange={(event) =>
+                  setEditFormData((prev) => ({ ...prev, message: event.target.value }))
+                }
+                rows={6}
+                maxLength={1000}
+                disabled={isSavingEdit}
+              />
+              <p className="text-xs text-muted-foreground text-right">
+                {editFormData.message.length}/1000
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="edit-facebook-link">Facebook Link</Label>
+              <Input
+                id="edit-facebook-link"
+                value={editFormData.facebookLink}
+                onChange={(event) => {
+                  setEditFormData((prev) => ({ ...prev, facebookLink: event.target.value }));
+                  if (facebookLinkError) {
+                    setFacebookLinkError("");
+                  }
+                }}
+                onBlur={(event) => {
+                  if (event.target.value.trim()) {
+                    validateFacebookLink(event.target.value);
+                  }
+                }}
+                placeholder="https://facebook.com/your.profile"
+                disabled={isSavingEdit}
+              />
+              {facebookLinkError && (
+                <p className="text-xs text-destructive">{facebookLinkError}</p>
+              )}
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={closeEditDialog} disabled={isSavingEdit}>
+              Cancel
+            </Button>
+            <Button onClick={handleEditSave} disabled={isSavingEdit}>
+              {isSavingEdit ? "Saving..." : "Save Changes"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };

@@ -12,6 +12,8 @@ export interface Post {
   created_at: string;
 }
 
+export type UpdatePostPayload = Pick<Post, "name" | "batch" | "message" | "facebook_link">;
+
 export type RealtimeCallback = () => void;
 
 export const postService = {
@@ -52,6 +54,15 @@ export const postService = {
   /** Delete a post by id. */
   async remove(id: string): Promise<void> {
     const { error } = await supabase.from("posts").delete().eq("id", id);
+    if (error) throw error;
+  },
+
+  /** Update editable post fields by id (admin use). */
+  async update(id: string, payload: UpdatePostPayload): Promise<void> {
+    const { error } = await supabase
+      .from("posts")
+      .update(payload)
+      .eq("id", id);
     if (error) throw error;
   },
 
