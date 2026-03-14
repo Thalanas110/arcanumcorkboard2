@@ -13,6 +13,46 @@ import { PostModal } from "@/components/PostModal";
 import { logger } from "@/lib/logger";
 import { postService, type Post } from "@/services/postService";
 
+const PDF_UNICODE_FONT_FAMILY = "NotoSans";
+const PDF_UNICODE_FONT_FILE = "NotoSans-Regular.ttf";
+const PDF_UNICODE_FONT_PATH = "/fonts/NotoSans-Regular.ttf";
+
+let cachedUnicodeFontBase64: string | null = null;
+
+const arrayBufferToBase64 = (buffer: ArrayBuffer): string => {
+  const bytes = new Uint8Array(buffer);
+  const chunkSize = 0x8000;
+  let binary = "";
+
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + chunkSize));
+  }
+
+  return btoa(binary);
+};
+
+const ensureUnicodeFontLoaded = async (doc: jsPDF): Promise<boolean> => {
+  try {
+    if (!cachedUnicodeFontBase64) {
+      const response = await fetch(PDF_UNICODE_FONT_PATH);
+      if (!response.ok) return false;
+      const fontBuffer = await response.arrayBuffer();
+      cachedUnicodeFontBase64 = arrayBufferToBase64(fontBuffer);
+    }
+
+    const fontDoc = doc as jsPDF & {
+      addFileToVFS: (filename: string, filedata: string) => void;
+      addFont: (postScriptName: string, id: string, fontStyle: string) => void;
+    };
+
+    fontDoc.addFileToVFS(PDF_UNICODE_FONT_FILE, cachedUnicodeFontBase64);
+    fontDoc.addFont(PDF_UNICODE_FONT_FILE, PDF_UNICODE_FONT_FAMILY, "normal");
+    return true;
+  } catch {
+    return false;
+  }
+};
+
 interface PostsTableProps {
   posts: Post[];
   loading: boolean;
@@ -23,10 +63,11 @@ export const PostsTable = ({ posts, loading, onUpdate }: PostsTableProps) => {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [viewPost, setViewPost] = useState<Post | null>(null);
 
-  const handleExportPDF = () => {
+  const handleExportPDF = async () => {
     if (posts.length === 0) return;
 
     const doc = new jsPDF({ orientation: "landscape", format: "a4" });
+    const unicodeFontReady = await ensureUnicodeFontLoaded(doc);
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
     const marginX = 14;
@@ -49,6 +90,12 @@ export const PostsTable = ({ posts, loading, onUpdate }: PostsTableProps) => {
     doc.setTextColor(51, 65, 85);
     doc.setFontSize(8);
     doc.text("Scope: All posts with full message contents", marginX, 32);
+
+    if (unicodeFontReady) {
+      doc.setFont(PDF_UNICODE_FONT_FAMILY, "normal");
+    } else {
+      toast.warning("Unicode PDF font failed to load. Some special characters may not render correctly.");
+    }
 
     const cardsY = 38;
     const gap = 5;
@@ -103,6 +150,7 @@ export const PostsTable = ({ posts, loading, onUpdate }: PostsTableProps) => {
       margin: { left: marginX, right: marginX, bottom: marginBottom },
       tableWidth: tableUsableWidth,
       styles: {
+        font: unicodeFontReady ? PDF_UNICODE_FONT_FAMILY : "helvetica",
         fontSize: 8,
         cellPadding: 2.5,
         lineColor: [226, 232, 240],
