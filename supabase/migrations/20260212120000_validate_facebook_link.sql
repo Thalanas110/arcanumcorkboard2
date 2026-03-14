@@ -5,13 +5,8 @@ LANGUAGE plpgsql
 IMMUTABLE
 AS $$
 BEGIN
-  -- Allow NULL values (for optional field)
-  IF link IS NULL THEN
-    RETURN true;
-  END IF;
-
-  -- Reject empty strings if they somehow bypass other checks, though strictly they should be NULL if empty
-  IF link = '' THEN
+  -- Reject NULL or empty strings
+  IF link IS NULL OR link = '' THEN
     RETURN false;
   END IF;
   
@@ -27,16 +22,9 @@ BEGIN
 END;
 $$;
 
--- First, make the column nullable so we can store NULLs
-ALTER TABLE public.posts 
-  ALTER COLUMN facebook_link DROP NOT NULL;
-
--- Remove the default empty string
+-- Remove the default empty string since we require valid links
 ALTER TABLE public.posts 
   ALTER COLUMN facebook_link DROP DEFAULT;
-
--- Now convert empty strings to NULL (this is allowed now that the column is nullable)
-UPDATE public.posts SET facebook_link = NULL WHERE facebook_link = '';
 
 -- Add CHECK constraint to posts table to validate facebook_link
 ALTER TABLE public.posts 
@@ -45,4 +33,4 @@ ALTER TABLE public.posts
 
 -- Add comment explaining the constraint
 COMMENT ON CONSTRAINT valid_facebook_link ON public.posts IS 
-  'Ensures facebook_link is a valid Facebook URL or NULL';
+  'Ensures facebook_link is a valid, non-empty Facebook URL (facebook.com, fb.com, or m.facebook.com)';
