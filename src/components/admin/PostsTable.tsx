@@ -35,6 +35,24 @@ const arrayBufferToBase64 = (buffer: ArrayBuffer): string => {
   return btoa(binary);
 };
 
+// jsPDF + NotoSans-Regular only covers Latin, Greek, Cyrillic, Hebrew, and Common scripts.
+// Characters from exotic scripts (Tai Viet, Canadian Syllabics, Georgian, etc.) or outside
+// the BMP (mathematical alphanumerics, most emojis) render as gibberish or "?".
+// NFKC normalization first converts compatibility chars (e.g. 𝓱𝓲 → hi, Ａ → A) to standard
+// equivalents, then the rest is stripped with a note so the admin can view the full content.
+const sanitizeTextForPDF = (text: string): string => {
+  // NFKC maps fancy/math/fullwidth Unicode letters to their standard ASCII equivalents,
+  // then removes any non-BMP characters (emojis, remaining math alphanumerics, etc.)
+  const bmpOut = text.normalize("NFKC").replace(/[\u{10000}-\u{10FFFF}]/gu, "");
+  // Strip characters from scripts NotoSans-Regular doesn't cover
+  const safe = bmpOut.replace(/[^\p{Script=Latin}\p{Script=Greek}\p{Script=Cyrillic}\p{Script=Common}\p{Script=Inherited}]/gu, "");
+  if (safe === bmpOut) return safe;
+  const readable = safe.trim();
+  return readable
+    ? `${readable}\n[Note: message contained unsupported Unicode characters - view on corkboard for full content]`
+    : "[Message uses unsupported Unicode script - view on corkboard for full content]";
+};
+
 const ensureUnicodeFontLoaded = async (doc: jsPDF): Promise<boolean> => {
   try {
     if (!cachedUnicodeFontBase64) {
@@ -171,9 +189,9 @@ export const PostsTable = ({ posts, loading, onUpdate }: PostsTableProps) => {
     drawCard(marginX + (cardWidth + gap) * 3, "Hidden", hiddenCount, [254, 226, 226], [153, 27, 27]);
 
     const tableData = posts.map((post) => [
-      post.name,
+      sanitizeTextForPDF(post.name),
       `Batch ${post.batch}`,
-      post.message,
+      sanitizeTextForPDF(post.message),
       post.facebook_link?.trim() ? post.facebook_link : "-",
       post.is_hidden ? "Hidden" : "Visible",
       post.is_pinned ? "Pinned" : "Regular",
