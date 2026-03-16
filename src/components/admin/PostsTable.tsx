@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -81,6 +82,15 @@ interface PostsTableProps {
   onUpdate: () => void;
 }
 
+const PAGE_SIZE = 15;
+
+const getPageNumbers = (current: number, total: number): (number | "ellipsis")[] => {
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+  if (current <= 4) return [1, 2, 3, 4, 5, "ellipsis", total];
+  if (current >= total - 3) return [1, "ellipsis", total - 4, total - 3, total - 2, total - 1, total];
+  return [1, "ellipsis", current - 1, current, current + 1, "ellipsis", total];
+};
+
 export const PostsTable = ({ posts, loading, onUpdate }: PostsTableProps) => {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [viewPost, setViewPost] = useState<Post | null>(null);
@@ -93,6 +103,11 @@ export const PostsTable = ({ posts, loading, onUpdate }: PostsTableProps) => {
     message: "",
     facebookLink: "",
   });
+  const [page, setPage] = useState(1);
+
+  useEffect(() => {
+    setPage(1);
+  }, [posts]);
 
   const validateFacebookLink = (link: string): boolean => {
     const trimmedLink = link.trim();
@@ -345,6 +360,9 @@ export const PostsTable = ({ posts, loading, onUpdate }: PostsTableProps) => {
     }
   };
 
+  const totalPages = Math.ceil(posts.length / PAGE_SIZE);
+  const paginatedPosts = posts.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
   if (loading) {
     return (
       <Card>
@@ -363,7 +381,8 @@ export const PostsTable = ({ posts, loading, onUpdate }: PostsTableProps) => {
             <div>
               <CardTitle>All Posts</CardTitle>
               <CardDescription>
-                Manage all messages posted on the corkboard ({posts.length} total)
+                Manage all messages posted on the corkboard ({posts.length} total
+                {totalPages > 1 ? ` · page ${page} of ${totalPages}` : ""})
               </CardDescription>
             </div>
             <Button onClick={handleExportPDF} variant="outline" size="sm" disabled={loading || posts.length === 0}>
@@ -393,7 +412,7 @@ export const PostsTable = ({ posts, loading, onUpdate }: PostsTableProps) => {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  posts.map((post) => (
+                  paginatedPosts.map((post) => (
                     <TableRow key={post.id}>
                       <TableCell className="font-medium">{post.name}</TableCell>
                       <TableCell>
@@ -468,6 +487,46 @@ export const PostsTable = ({ posts, loading, onUpdate }: PostsTableProps) => {
               </TableBody>
             </Table>
           </div>
+          {totalPages > 1 && (
+            <Pagination className="mt-4">
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    aria-disabled={page === 1}
+                    className={page === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                  />
+                </PaginationItem>
+                {getPageNumbers(page, totalPages).map((n, i) =>
+                  n === "ellipsis" ? (
+                    <PaginationItem key={`ellipsis-${i}`}>
+                      <PaginationEllipsis />
+                    </PaginationItem>
+                  ) : (
+                    <PaginationItem key={n}>
+                      <button
+                        onClick={() => setPage(n)}
+                        className={`flex h-9 w-9 items-center justify-center rounded-md text-sm font-medium transition-colors ${
+                          page === n
+                            ? "border border-input bg-background shadow-sm"
+                            : "hover:bg-accent hover:text-accent-foreground"
+                        }`}
+                      >
+                        {n}
+                      </button>
+                    </PaginationItem>
+                  )
+                )}
+                <PaginationItem>
+                  <PaginationNext
+                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                    aria-disabled={page === totalPages}
+                    className={page === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          )}
         </CardContent>
       </Card>
 
