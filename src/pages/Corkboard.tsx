@@ -5,9 +5,21 @@ import { PostCard } from "@/components/PostCard";
 import { PostForm } from "@/components/PostForm";
 import { PostModal } from "@/components/PostModal";
 import { LoadingScreen } from "@/components/LoadingScreen";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Pin, Plus, Menu, X } from "lucide-react";
 import backgroundImage from "@/assets/anon corkboard monthsary n edited.jpg";
 
+
+const PRIVACY_CONSENT_KEY = "arcanum_data_privacy_accepted";
 
 
 const Corkboard = () => {
@@ -17,6 +29,8 @@ const Corkboard = () => {
   const [loading, setLoading] = useState(true);
   const [initialLoadComplete, setInitialLoadComplete] = useState(false);
   const [sidenavOpen, setSidenavOpen] = useState(false);
+  const [showPrivacyDialog, setShowPrivacyDialog] = useState(false);
+  const [showConsentDialog, setShowConsentDialog] = useState(false);
 
   const fetchPosts = async () => {
     try {
@@ -33,6 +47,18 @@ const Corkboard = () => {
     fetchPosts();
     return postService.subscribeToChanges('posts-changes', fetchPosts);
   }, []);
+
+  useEffect(() => {
+    const hasAcceptedPrivacy = localStorage.getItem(PRIVACY_CONSENT_KEY) === "true";
+    if (!hasAcceptedPrivacy) {
+      setShowConsentDialog(true);
+    }
+  }, []);
+
+  const handleAcceptPrivacy = () => {
+    localStorage.setItem(PRIVACY_CONSENT_KEY, "true");
+    setShowConsentDialog(false);
+  };
 
   // Show loading screen if still loading
   if (!initialLoadComplete) {
@@ -83,6 +109,14 @@ const Corkboard = () => {
 
                 {/* Desktop Navigation (lg+ screens) */}
                 <div className="hidden lg:flex items-center gap-4">
+                  <Button
+                    variant="secondary"
+                    size="lg"
+                    onClick={() => setShowPrivacyDialog(true)}
+                    className="shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5 rounded-full"
+                  >
+                    Data Privacy
+                  </Button>
                   <Button
                     onClick={() => setShowForm(true)}
                     size="lg"
@@ -199,6 +233,17 @@ const Corkboard = () => {
                   variant="secondary"
                   size="lg"
                   onClick={() => {
+                    setShowPrivacyDialog(true);
+                    setSidenavOpen(false);
+                  }}
+                  className="w-full shadow-lg hover:shadow-xl transition-shadow"
+                >
+                  Data Privacy
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="lg"
+                  onClick={() => {
                     window.location.href = '/admin';
                     setSidenavOpen(false);
                   }}
@@ -231,6 +276,48 @@ const Corkboard = () => {
           onClose={() => setSelectedPost(null)}
         />
       )}
+
+      <AlertDialog open={showPrivacyDialog} onOpenChange={setShowPrivacyDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Data Privacy</AlertDialogTitle>
+            <AlertDialogDescription className="space-y-3">
+              <span className="block">
+                We collect limited technical data to help keep this corkboard safe and reliable.
+              </span>
+              <span className="block">
+                This includes your IP address strictly for logging purposes and threat prevention (for example: abuse detection, spam defense, and security investigation).
+              </span>
+              <span className="block">
+                By continuing to use this website, you acknowledge this data privacy notice.
+              </span>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction>Close</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={showConsentDialog} onOpenChange={setShowConsentDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Data Privacy Notice</AlertDialogTitle>
+            <AlertDialogDescription className="space-y-3">
+              <span className="block">
+                By accepting, you agree to our data privacy notice.
+              </span>
+              <span className="block">
+                We track IP addresses only for logging purposes and threat prevention.
+              </span>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setShowPrivacyDialog(true)}>View Details</AlertDialogCancel>
+            <AlertDialogAction onClick={handleAcceptPrivacy}>Accept</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

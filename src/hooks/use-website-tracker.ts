@@ -2,11 +2,18 @@ import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 
+const PRIVACY_CONSENT_KEY = 'arcanum_data_privacy_accepted';
+
 export const useWebsiteTracker = () => {
     const location = useLocation();
 
     useEffect(() => {
         const trackVisit = async () => {
+            const hasAcceptedPrivacy = localStorage.getItem(PRIVACY_CONSENT_KEY) === 'true';
+            if (!hasAcceptedPrivacy) {
+                return;
+            }
+
             try {
                 await supabase.from('website_visits').insert({
                     path: location.pathname,
